@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import '../styles/global.css';
 
 const BRANCHES = [
-  { name: "Heliopolis", address: "14 Ibrahim Al-Laqqani St., Korba", phone: "0100 90 70 000" },
-  { name: "Mohandeseen", address: "Moustafa Mahmoud Sq., Watany Bank Bldg.", phone: "0100 90 70 000" },
-  { name: "Sheikh Zayed", address: "Beverly Hills, Building 9", phone: "0100 90 70 000" },
-  { name: "New Cairo", address: "5th Settlement, South Teseen Rd.", phone: "0100 90 70 000" }
+  { name: "Korba", address: "Korba: 2 El Fayoum st. from Cleopatra, third floor, Heliopolis.", phone: "0100 90 70 000" },
+  { name: "Mohandeseen", address: "Moustafa Mahmoud Sq., National Bank of Kuwait Building., Floor 10", phone: "0100 90 70 000" },
+  { name: "Sheikh Zayed", address: "Capital Business Park, B6, Fifth Floor, unit 504.", phone: "0100 90 70 000" },
+  { name: "New Cairo", address: "Cairo Medical Center (CMC) behind Airforce Hospital – Third Floor", phone: "0100 90 70 000" }
 ];
 
 export default function Footer() {
