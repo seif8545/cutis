@@ -161,9 +161,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. OVERLAPPING CTA BANNER (Fixed Layout) */}
-      <section style={{ position: 'relative', zIndex: 10, padding: '0 24px' }}>
-        <div className="container reveal" style={{ padding: 0 }}>
+ {/* 4. ENCLOSED CTA BANNER */}
+      <section className="section bg-white" style={{ paddingBottom: '100px' }}>
+        <div className="container reveal">
           <div style={{ 
             background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
             borderRadius: '32px', 
@@ -171,10 +171,21 @@ export default function LandingPage() {
             color: '#fff', 
             position: 'relative', 
             overflow: 'hidden', 
-            marginBottom: '-80px', /* Pulls the footer up underneath */
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            boxShadow: 'var(--shadow-md)',
             border: '1px solid rgba(255,255,255,0.05)'
           }}>
+            
+            {/* The decorative blurred glow */}
+            <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.4 }}></div>
+            
+            <div style={{ position: 'relative', zIndex: 2, maxWidth: '600px' }}>
+              <h2 className="heading-lg" style={{ color: '#fff', marginBottom: '20px' }}>Begin your skin journey today.</h2>
+              <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.7)', marginBottom: '40px' }}>Schedule a private consultation at any of our four premium branches across Greater Cairo.</p>
+              <Link to="/book" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '1rem' }}>Book Your Visit</Link>
+            </div>
+          </div>
+        </div>
+      </section>
             
             {/* The decorative blurred glow */}
             <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.4 }}></div>
