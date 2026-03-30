@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import HistoryPage from './pages/HistoryPage'; // <-- Import new page
 import ValuesPage from './pages/Values';   // <-- Import new page
 import Footer from './components/Footer';
+import DoctorsPage from './pages/DoctorsPage';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/values" element={<ValuesPage />} />   {/* <-- Add Route */}
             <Route path="/book" element={<BookingPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/doctors" element={<DoctorsPage />} />
           </Routes>
         </main>
         <Footer />
