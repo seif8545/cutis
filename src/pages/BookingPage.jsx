@@ -2,21 +2,29 @@
 import React, { useState } from 'react';
 import '../styles/global.css';
 
-const BRANCHES = ["Heliopolis", "Mohandeseen", "Sheikh Zayed", "New Cairo (Tagamoa)"];
+const VISIT_TYPES = ["Clinics", "Home Visit", "Online"];
+const BRANCHES = ["Sheikh Zayed", "East Cairo", "North Coast", "Heliopolis", "Mohandeseen"];
 const DEPTS = ["Cosmetic Dermatology", "Advanced Laser Center", "Clinical Dermatology"];
-const SKIN_TYPES = ["I - Very Fair", "II - Fair", "III - Medium", "IV - Olive", "V - Brown", "VI - Dark"];
+const DOCTORS = ["Prof. Abdel-Rahim Abdallah", "Prof. Marwa Abdallah", "A. Prof. Mahmoud Abdallah", "Dr. Nehad Youssef", "Dr. Azza El-Azhary"];
 
 export default function BookingPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    branch: '', department: '',
-    firstName: '', lastName: '', phone: '', email: '', dob: '', gender: '', nationalId: '',
-    chiefComplaint: '', skinType: '', duration: '',
-    allergies: '', medications: '', previousTreatments: ''
+    visitType: 'Clinics',
+    branch: '',
+    department: '',
+    doctor: '',
+    fullName: '',
+    phone: '',
+    email: '',
+    chiefComplaint: '',
+    allergies: '',
+    medications: '',
+    source: ''
   });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const updateField = (name, value) => {
+    setFormData({ ...formData, [name]: value });
   };
 
   const nextStep = () => setStep(prev => prev + 1);
@@ -24,159 +32,189 @@ export default function BookingPage() {
 
   const submitBooking = (e) => {
     e.preventDefault();
-    // In a real app, this is where you send data to your backend (e.g., Firebase, Node.js)
-    console.log("Booking Submitted: ", formData);
-    setStep(5); // Move to success screen
+    console.log("Final Data: ", formData);
+    setStep(5);
   };
 
   return (
-    <div className="section bg-white" style={{ minHeight: 'calc(100vh - 80px)' }}>
-      <div className="container" style={{ maxWidth: '700px' }}>
+    <div className="section" style={{ background: 'var(--bg-main)', minHeight: 'calc(100vh - 70px)' }}>
+      <div className="container" style={{ maxWidth: '800px' }}>
         
-        {/* Progress Indicator */}
+        {/* Step Indicator */}
         {step < 5 && (
-          <div style={{ marginBottom: '40px', textAlign: 'center' }}>
-            <span className="eyebrow">Step {step} of 4</span>
-            <div style={{ height: '4px', background: 'var(--border-lt)', borderRadius: '100px', marginTop: '10px', overflow: 'hidden' }}>
-              <div style={{ width: `${(step / 4) * 100}%`, height: '100%', background: 'var(--brand-green)', transition: 'width 0.3s ease' }}></div>
+          <div style={{ marginBottom: '40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <span className="eyebrow" style={{ margin: 0 }}>Consultation Request</span>
+              <span style={{ fontWeight: '700', fontSize: '0.8rem', color: 'var(--brand-blue)' }}>Step {step} of 4</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--border-lt)', borderRadius: '100px', overflow: 'hidden' }}>
+              <div style={{ width: `${(step / 4) * 100}%`, height: '100%', background: 'var(--brand-green)', transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
             </div>
           </div>
         )}
 
-        {/* STEP 1: Branch & Service */}
-        {step === 1 && (
-          <div style={{ animation: 'fadeIn 0.4s ease' }}>
-            <h2 className="heading-md" style={{ textAlign: 'center' }}>Appointment Details</h2>
-            <div style={{ background: 'var(--bg-main)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-lt)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '8px' }}>Preferred Branch *</label>
-                  <select name="branch" value={formData.branch} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-lt)' }}>
-                    <option value="">Select a branch</option>
-                    {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
-                  </select>
+        <div className="glass-panel" style={{ padding: '48px', border: 'none', boxShadow: 'var(--shadow-md)' }}>
+          
+          {/* STEP 1: SERVICE SELECTION (Segmented Pills) */}
+          {step === 1 && (
+            <div className="reveal">
+              <h2 className="heading-md">Select Your Visit</h2>
+              
+              <div className="form-group">
+                <label className="custom-label">Visit Type</label>
+                <div className="pill-grid">
+                  {VISIT_TYPES.map(type => (
+                    <button 
+                      key={type} 
+                      className={`pill-btn ${formData.visitType === type ? 'active' : ''}`}
+                      onClick={() => updateField('visitType', type)}
+                    >
+                      {type}
+                    </button>
+                  ))}
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '8px' }}>Clinical Department *</label>
-                  <select name="department" value={formData.department} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-lt)' }}>
-                    <option value="">Select a department</option>
+              </div>
+
+              <div className="form-group">
+                <label className="custom-label">Preferred Branch</label>
+                <div className="pill-grid">
+                  {BRANCHES.map(b => (
+                    <button 
+                      key={b} 
+                      className={`pill-btn ${formData.branch === b ? 'active' : ''}`}
+                      onClick={() => updateField('branch', b)}
+                    >
+                      {b}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid-2" style={{ gap: '20px' }}>
+                <div className="form-group">
+                  <label className="custom-label">Department</label>
+                  <select className="custom-select" value={formData.department} onChange={(e) => updateField('department', e.target.value)}>
+                    <option value="">Choose Clinic</option>
                     {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
-              </div>
-              <button className="btn btn-primary" style={{ width: '100%', marginTop: '30px' }} onClick={nextStep} disabled={!formData.branch || !formData.department}>Continue to Details →</button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 2: Demographics */}
-        {step === 2 && (
-          <div style={{ animation: 'fadeIn 0.4s ease' }}>
-            <h2 className="heading-md" style={{ textAlign: 'center' }}>Patient Information</h2>
-            <div style={{ background: 'var(--bg-main)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-lt)' }}>
-              <div className="grid-2" style={{ gap: '20px', marginBottom: '20px' }}>
-                <div><label className="form-label">First Name *</label><input type="text" name="firstName" value={formData.firstName} onChange={handleChange} className="form-input" /></div>
-                <div><label className="form-label">Last Name *</label><input type="text" name="lastName" value={formData.lastName} onChange={handleChange} className="form-input" /></div>
-                <div><label className="form-label">Phone Number *</label><input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="form-input" /></div>
-                <div><label className="form-label">Email Address *</label><input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" /></div>
-                <div><label className="form-label">Date of Birth *</label><input type="date" name="dob" value={formData.dob} onChange={handleChange} className="form-input" /></div>
-                <div>
-                  <label className="form-label">Gender</label>
-                  <select name="gender" value={formData.gender} onChange={handleChange} className="form-input">
-                    <option value="">Select</option><option value="Female">Female</option><option value="Male">Male</option>
+                <div className="form-group">
+                  <label className="custom-label">Doctor (Optional)</label>
+                  <select className="custom-select" value={formData.doctor} onChange={(e) => updateField('doctor', e.target.value)}>
+                    <option value="">Any Available Specialist</option>
+                    {DOCTORS.map(doc => <option key={doc} value={doc}>{doc}</option>)}
                   </select>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '16px', marginTop: '30px' }}>
-                <button className="btn btn-outline" style={{ flex: 1 }} onClick={prevStep}>← Back</button>
-                <button className="btn btn-primary" style={{ flex: 2 }} onClick={nextStep} disabled={!formData.firstName || !formData.phone}>Next: Clinical Intake →</button>
+
+              <button className="btn btn-primary" style={{ width: '100%', marginTop: '20px' }} onClick={nextStep} disabled={!formData.branch || !formData.department}>Continue →</button>
+            </div>
+          )}
+
+          {/* STEP 2: PERSONAL INFO */}
+          {step === 2 && (
+            <div className="reveal">
+              <h2 className="heading-md">Patient Details</h2>
+              <div className="form-group">
+                <label className="custom-label">Full Name</label>
+                <input type="text" className="custom-input" placeholder="John Doe" value={formData.fullName} onChange={(e) => updateField('fullName', e.target.value)} />
+              </div>
+              <div className="grid-2" style={{ gap: '20px' }}>
+                <div className="form-group">
+                  <label className="custom-label">Email Address</label>
+                  <input type="email" className="custom-input" placeholder="john@example.com" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label className="custom-label">Phone Number</label>
+                  <input type="tel" className="custom-input" placeholder="01xx xxx xxxx" value={formData.phone} onChange={(e) => updateField('phone', e.target.value)} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+                <button className="btn btn-outline" style={{ flex: 1, color: 'var(--text-dark)', borderColor: 'var(--border-lt)' }} onClick={prevStep}>Back</button>
+                <button className="btn btn-primary" style={{ flex: 2 }} onClick={nextStep} disabled={!formData.fullName || !formData.phone}>Next Step</button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 3: Clinical Intake */}
-        {step === 3 && (
-          <div style={{ animation: 'fadeIn 0.4s ease' }}>
-            <h2 className="heading-md" style={{ textAlign: 'center' }}>Reason for Visit</h2>
-            <div style={{ background: 'var(--bg-main)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-lt)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div>
-                  <label className="form-label">Chief Complaint / Main Concern *</label>
-                  <textarea name="chiefComplaint" value={formData.chiefComplaint} onChange={handleChange} className="form-input" rows="3" placeholder="Please describe your primary skin concern..."></textarea>
-                </div>
-                <div className="grid-2" style={{ gap: '20px' }}>
-                  <div>
-                    <label className="form-label">Fitzpatrick Skin Type</label>
-                    <select name="skinType" value={formData.skinType} onChange={handleChange} className="form-input">
-                      <option value="">Select</option>
-                      {SKIN_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="form-label">Duration of Concern</label>
-                    <select name="duration" value={formData.duration} onChange={handleChange} className="form-input">
-                      <option value="">Select</option><option value="Days">Days</option><option value="Weeks">Weeks</option><option value="Months">Months</option><option value="Years">Years</option>
-                    </select>
-                  </div>
-                </div>
+          {/* STEP 3: MAIN CONCERN (Simplified) */}
+          {step === 3 && (
+            <div className="reveal">
+              <h2 className="heading-md">Medical Concern</h2>
+              <div className="form-group">
+                <label className="custom-label">What is your main concern? *</label>
+                <textarea 
+                  className="custom-input" 
+                  rows="6" 
+                  placeholder="Please describe the skin issue or treatment you are interested in..." 
+                  value={formData.chiefComplaint}
+                  onChange={(e) => updateField('chiefComplaint', e.target.value)}
+                ></textarea>
               </div>
-              <div style={{ display: 'flex', gap: '16px', marginTop: '30px' }}>
-                <button className="btn btn-outline" style={{ flex: 1 }} onClick={prevStep}>← Back</button>
-                <button className="btn btn-primary" style={{ flex: 2 }} onClick={nextStep} disabled={!formData.chiefComplaint}>Next: Medical History →</button>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+                <button className="btn btn-outline" style={{ flex: 1, color: 'var(--text-dark)', borderColor: 'var(--border-lt)' }} onClick={prevStep}>Back</button>
+                <button className="btn btn-primary" style={{ flex: 2 }} onClick={nextStep} disabled={!formData.chiefComplaint}>Medical History →</button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 4: Medical History */}
-        {step === 4 && (
-          <div style={{ animation: 'fadeIn 0.4s ease' }}>
-            <h2 className="heading-md" style={{ textAlign: 'center' }}>Medical History</h2>
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '24px' }}>This information is kept strictly confidential.</p>
-            <div style={{ background: 'var(--bg-main)', padding: '32px', borderRadius: '16px', border: '1px solid var(--border-lt)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div>
-                  <label className="form-label" style={{ color: 'var(--brand-blue)' }}>Known Allergies ⚠</label>
-                  <textarea name="allergies" value={formData.allergies} onChange={handleChange} className="form-input" rows="2" placeholder="List any drug, food, or topical allergies"></textarea>
-                </div>
-                <div>
-                  <label className="form-label">Current Medications</label>
-                  <textarea name="medications" value={formData.medications} onChange={handleChange} className="form-input" rows="2" placeholder="List all current medications and supplements"></textarea>
-                </div>
-                <div>
-                  <label className="form-label">Previous Dermatological Treatments</label>
-                  <textarea name="previousTreatments" value={formData.previousTreatments} onChange={handleChange} className="form-input" rows="2" placeholder="E.g., Accutane in 2021, Laser hair removal, etc."></textarea>
-                </div>
+          {/* STEP 4: HISTORY & SUBMIT */}
+          {step === 4 && (
+            <div className="reveal">
+              <h2 className="heading-md">Final Review</h2>
+              <div className="form-group">
+                <label className="custom-label">Known Allergies</label>
+                <input type="text" className="custom-input" placeholder="None" value={formData.allergies} onChange={(e) => updateField('allergies', e.target.value)} />
               </div>
-              <div style={{ display: 'flex', gap: '16px', marginTop: '30px' }}>
-                <button className="btn btn-outline" style={{ flex: 1 }} onClick={prevStep}>← Back</button>
-                <button className="btn btn-primary" style={{ flex: 2, background: 'var(--brand-green)', color: '#1e293b' }} onClick={submitBooking}>Confirm & Submit Booking ✓</button>
+              <div className="form-group">
+                <label className="custom-label">Current Medications</label>
+                <input type="text" className="custom-input" placeholder="List any medications" value={formData.medications} onChange={(e) => updateField('medications', e.target.value)} />
+              </div>
+              
+              {/* Reference Image ReCAPTCHA style element */}
+              <div style={{ padding: '16px', border: '1px solid var(--border-lt)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', background: '#fcfcfc' }}>
+                <input type="checkbox" style={{ width: '20px', height: '20px' }} required />
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-mid)' }}>I'm not a robot</span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button className="btn btn-outline" style={{ flex: 1, color: 'var(--text-dark)', borderColor: 'var(--border-lt)' }} onClick={prevStep}>Back</button>
+                <button className="btn btn-primary" style={{ flex: 2 }} onClick={submitBooking}>Book Appointment</button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 5: Success Screen */}
-        {step === 5 && (
-          <div style={{ textAlign: 'center', padding: '60px 20px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ fontSize: '4rem', color: 'var(--brand-green)', marginBottom: '20px' }}>✓</div>
-            <h2 className="heading-md">Request Received</h2>
-            <p style={{ color: 'var(--text-mid)', fontSize: '1.1rem', marginBottom: '30px' }}>
-              Thank you, {formData.firstName}. Your consultation request for the <strong>{formData.branch}</strong> branch has been securely submitted. Our medical coordinators will contact you shortly to confirm your exact time slot.
-            </p>
-            <button className="btn btn-outline" onClick={() => window.location.href="/"}>Return to Homepage</button>
-          </div>
-        )}
-
+          {/* STEP 5: SUCCESS */}
+          {step === 5 && (
+            <div style={{ textAlign: 'center', animation: 'fadeIn 0.6s ease' }}>
+              <div style={{ width: '80px', height: '80px', background: 'var(--brand-green)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: '2rem' }}>✓</div>
+              <h2 className="heading-md">Request Sent!</h2>
+              <p style={{ color: 'var(--text-mid)', marginBottom: '32px' }}>
+                Thank you, <strong>{formData.fullName}</strong>. Our medical coordinators at the {formData.branch} branch will call you shortly to confirm your slot.
+              </p>
+              <button className="btn btn-primary" onClick={() => window.location.href="/"}>Back to Home</button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Inline styles for forms to keep it self-contained for now */}
       <style>{`
-        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-dark); }
-        .form-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-lt); font-family: inherit; font-size: 0.95rem; }
-        .form-input:focus { outline: none; border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(0, 156, 219, 0.1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group { margin-bottom: 24px; }
+        .custom-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+        
+        .pill-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .pill-btn { 
+          padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-lt); 
+          background: #fff; font-size: 0.85rem; font-weight: 500; color: var(--text-mid);
+          transition: all 0.2s ease;
+        }
+        .pill-btn:hover { border-color: var(--brand-blue); color: var(--brand-blue); }
+        .pill-btn.active { background: var(--brand-blue-lt); border-color: var(--brand-blue); color: var(--brand-blue); font-weight: 700; }
+
+        .custom-input, .custom-select { 
+          width: 100%; padding: 14px; border-radius: 8px; border: 1px solid var(--border-lt);
+          font-family: var(--font-sans); font-size: 0.95rem; background: #fff;
+        }
+        .custom-input:focus { outline: none; border-color: var(--brand-blue); box-shadow: 0 0 0 4px var(--brand-blue-lt); }
       `}</style>
     </div>
   );
