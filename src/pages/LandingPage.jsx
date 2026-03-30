@@ -1,4 +1,3 @@
-// src/pages/LandingPage.jsx
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/global.css';
@@ -28,16 +27,9 @@ const SERVICES = [
   }
 ];
 
-const BRANCHES = [
-  { name: "Heliopolis", address: "14 Ibrahim Al-Laqqani St.", phone: "0100 90 70 000" },
-  { name: "Mohandeseen", address: "Moustafa Mahmoud Sq.", phone: "0100 90 70 000" },
-  { name: "Sheikh Zayed", address: "Beverly Hills, Bldg 9", phone: "0100 90 70 000" },
-  { name: "New Cairo", address: "South Teseen Rd.", phone: "0100 90 70 000" }
-];
-
 export default function LandingPage() {
   
-  // Simple scroll reveal hook for Webflow-like entry animations
+  // Scroll reveal hook for buttery-smooth entry animations
   const observerRef = useRef(null);
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -62,10 +54,10 @@ export default function LandingPage() {
   return (
     <div className="landing-page">
       
-      {/* 1. HERO SECTION - Emulating your provided screenshot */}
+      {/* 1. HERO SECTION */}
       <section style={{ backgroundColor: 'var(--brand-blue)', color: '#fff', paddingTop: '140px', paddingBottom: '160px', position: 'relative', overflow: 'hidden' }}>
         
-        {/* Abstract Background Typography (Webflow Style) */}
+        {/* Abstract Background Typography */}
         <div style={{ position: 'absolute', top: '10%', left: '-5%', fontSize: '15vw', fontFamily: 'var(--font-serif)', color: 'rgba(255,255,255,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>
           Since 1964
         </div>
@@ -169,12 +161,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. OVERLAPPING CTA BANNER */}
-      <section className="section" style={{ paddingBottom: '0' }}>
-        <div className="container reveal">
-          <div style={{ background: 'var(--text-dark)', borderRadius: '32px', padding: '80px 60px', color: '#fff', position: 'relative', overflow: 'hidden', transform: 'translateY(60px)', zIndex: 10 }}>
+      {/* 4. OVERLAPPING CTA BANNER (Fixed Layout) */}
+      <section style={{ position: 'relative', zIndex: 10, padding: '0 24px' }}>
+        <div className="container reveal" style={{ padding: 0 }}>
+          <div style={{ 
+            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
+            borderRadius: '32px', 
+            padding: '80px 60px', 
+            color: '#fff', 
+            position: 'relative', 
+            overflow: 'hidden', 
+            marginBottom: '-80px', /* Pulls the footer up underneath */
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '1px solid rgba(255,255,255,0.05)'
+          }}>
             
-            <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.5 }}></div>
+            {/* The decorative blurred glow */}
+            <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.4 }}></div>
             
             <div style={{ position: 'relative', zIndex: 2, maxWidth: '600px' }}>
               <h2 className="heading-lg" style={{ color: '#fff', marginBottom: '20px' }}>Begin your skin journey today.</h2>
