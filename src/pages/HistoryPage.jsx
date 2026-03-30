@@ -41,7 +41,7 @@ export default function HistoryPage() {
     },
     { 
       year: "2020", 
-      text: "Continuing its strategic expansion, Cutis brought its world-class laser platforms and renowned clinical expertise to the west of Cairo with the launch of the Sheikh Zayed branch in Beverly Hills." 
+      text: "Continuing its strategic expansion, Cutis brought its world-class laser platforms and renowned clinical expertise to the west of Cairo with the launch of the Sheikh Zayed branch in Capital Business Park." 
     }
   ];
 
