@@ -5,7 +5,9 @@ import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
 import BookingPage from './pages/BookingPage';
 import AdminDashboard from './pages/AdminDashboard';
-import Footer from './components/Footer'; // <-- Import the new footer
+import HistoryPage from './pages/HistoryPage'; // <-- Import new page
+import ValuesPage from './pages/ValuesPage';   // <-- Import new page
+import Footer from './components/Footer';
 
 export default function App() {
   return (
@@ -15,11 +17,13 @@ export default function App() {
         <main style={{ flex: '1' }}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/history" element={<HistoryPage />} /> {/* <-- Add Route */}
+            <Route path="/values" element={<ValuesPage />} />   {/* <-- Add Route */}
             <Route path="/book" element={<BookingPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>
-        <Footer /> {/* <-- Add it right above the closing div */}
+        <Footer />
       </div>
     </Router>
   );
