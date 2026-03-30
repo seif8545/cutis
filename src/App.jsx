@@ -4,20 +4,22 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
 import BookingPage from './pages/BookingPage';
-import AdminDashboard from './pages/AdminDashboard'; // <-- Import the new component
+import AdminDashboard from './pages/AdminDashboard';
+import Footer from './components/Footer'; // <-- Import the new footer
 
 export default function App() {
   return (
     <Router>
-      <div className="app-wrapper">
+      <div className="app-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Navigation />
-        <main>
+        <main style={{ flex: '1' }}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/book" element={<BookingPage />} />
-            <Route path="/admin" element={<AdminDashboard />} /> {/* <-- Activate the route */}
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>
+        <Footer /> {/* <-- Add it right above the closing div */}
       </div>
     </Router>
   );
