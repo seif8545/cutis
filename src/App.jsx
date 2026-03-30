@@ -9,7 +9,7 @@ import HistoryPage from './pages/HistoryPage'; // <-- Import new page
 import ValuesPage from './pages/Values';   // <-- Import new page
 import Footer from './components/Footer';
 import DoctorsPage from './pages/DoctorsPage';
-
+import ServicesPage from './pages/ServicesPage'; 
 export default function App() {
   return (
     <Router>
@@ -23,6 +23,7 @@ export default function App() {
             <Route path="/book" element={<BookingPage />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/doctors" element={<DoctorsPage />} />
+            <Route path="/services" element={<ServicesPage />} />
           </Routes>
         </main>
         <Footer />
