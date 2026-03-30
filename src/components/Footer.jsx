@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../styles/global.css';
 
 const BRANCHES = [
-  { name: "Korba", address: "Korba: 2 El Fayoum st. from Cleopatra, third floor, Heliopolis.", phone: "0100 90 70 000" },
+  { name: "Korba", address: "2 El Fayoum st. from Cleopatra, third floor, Heliopolis.", phone: "0100 90 70 000" },
   { name: "Mohandeseen", address: "Moustafa Mahmoud Sq., National Bank of Kuwait Building., Floor 10", phone: "0100 90 70 000" },
   { name: "Sheikh Zayed", address: "Capital Business Park, B6, Fifth Floor, unit 504.", phone: "0100 90 70 000" },
   { name: "New Cairo", address: "Cairo Medical Center (CMC) behind Airforce Hospital – Third Floor", phone: "0100 90 70 000" }
