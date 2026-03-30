@@ -22,11 +22,10 @@ export default function Navigation() {
 
         {/* Links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          
-          <Link to="/doctors" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Medical Team</Link> {/* <-- NEW LINK */}
+          <Link to="/services" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Our Services</Link>
+          <Link to="/doctors" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Medical Team</Link> 
           <Link to="/history" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Our History</Link>
           <Link to="/values" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Core Values</Link>
-          
           {isHome && (
             <>
               <a href="#services" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Treatments</a>
