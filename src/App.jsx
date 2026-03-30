@@ -6,7 +6,7 @@ import LandingPage from './pages/LandingPage';
 import BookingPage from './pages/BookingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import HistoryPage from './pages/HistoryPage'; // <-- Import new page
-import ValuesPage from './pages/ValuesPage';   // <-- Import new page
+import ValuesPage from './pages/Values';   // <-- Import new page
 import Footer from './components/Footer';
 
 export default function App() {
