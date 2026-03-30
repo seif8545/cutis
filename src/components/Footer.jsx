@@ -31,13 +31,13 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Quick Links */}
+     {/* Quick Links */}
           <div>
-            <h4 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '20px', fontFamily: 'var(--font-serif)' }}>Departments</h4>
+            <h4 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '20px', fontFamily: 'var(--font-serif)' }}>About Cutis</h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <li><a href="/#services" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Cosmetic Dermatology</a></li>
-              <li><a href="/#services" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Advanced Laser Center</a></li>
-              <li><a href="/#services" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Clinical Dermatology</a></li>
+              <li><Link to="/history" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Our History</Link></li>
+              <li><Link to="/values" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Core Values</Link></li>
+              <li><a href="/#services" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Clinical Departments</a></li>
               <li><Link to="/book" style={{ fontSize: '0.85rem', color: 'var(--brand-green)', fontWeight: '600' }}>Book Consultation →</Link></li>
             </ul>
           </div>
