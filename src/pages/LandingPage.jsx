@@ -1,154 +1,186 @@
 // src/pages/LandingPage.jsx
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/global.css';
 
 // --- DATA MODULES ---
-const CLINIC_VALUES = [
-  { title: "Academic Rigor", desc: "Every treatment protocol is peer-reviewed and rooted in the latest clinical dermatology literature.", icon: "📚" },
-  { title: "Patient Safety", desc: "Uncompromising sterilization standards and FDA-approved laser technology.", icon: "🛡️" },
-  { title: "Compassionate Care", desc: "We prioritize patient comfort, understanding, and ethical medical advice above all else.", icon: "💙" }
-];
-
 const SERVICES = [
   {
-    category: "Cosmetic Dermatology",
+    colSpan: "span 4",
+    category: "Cosmetic",
     icon: "✨",
-    treatments: [
-      { name: "Neuromodulators (Botox)", desc: "Precision wrinkle relaxation and facial contouring." },
-      { name: "Dermal Fillers", desc: "Hyaluronic acid treatments for volume restoration and lip augmentation." },
-      { name: "Bio-Remodeling (Profhilo)", desc: "Injectable skin boosters for deep hydration and tissue tightening." },
-      { name: "PRP & Mesotherapy", desc: "Cellular rejuvenation for face, neck, and hair restoration." }
-    ]
+    title: "Aesthetic Refinement",
+    desc: "Neuromodulators, Dermal Fillers, and Bio-Remodeling injected with precision by consultant dermatologists."
   },
   {
-    category: "Advanced Laser Center",
+    colSpan: "span 4",
+    category: "Laser",
     icon: "⚡",
-    treatments: [
-      { name: "CO₂ Fractional Resurfacing", desc: "Gold-standard treatment for acne scars and skin texture refinement." },
-      { name: "Laser Hair Removal", desc: "Painless, effective removal using Candela GentleMax Pro (Nd:YAG & Alexandrite)." },
-      { name: "Q-Switched Laser", desc: "Targeted removal of pigmentation, melasma, and tattoos." },
-      { name: "Vascular Laser", desc: "Treatment for rosacea, spider veins, and capillary damage." }
-    ]
+    title: "Advanced Laser Center",
+    desc: "FDA-approved CO₂ Fractional, Nd:YAG, and Alexandrite platforms for resurfacing and hair removal."
   },
   {
-    category: "Clinical Dermatology",
+    colSpan: "span 4",
+    category: "Clinical",
     icon: "🩺",
-    treatments: [
-      { name: "Acne Management", desc: "Comprehensive medical and laser protocols for active acne and scarring." },
-      { name: "Vitiligo & Phototherapy", desc: "Specialized excimer laser and NB-UVB treatments." },
-      { name: "Alopecia Clinics", desc: "Diagnostic biopsies and medical treatment plans for hair loss." },
-      { name: "Psoriasis & Eczema", desc: "Long-term biological and topical management for chronic skin conditions." }
-    ]
+    title: "Medical Dermatology",
+    desc: "Evidence-based protocols for Acne, Vitiligo, Eczema, and Alopecia management."
   }
 ];
 
 const BRANCHES = [
-  { name: "Heliopolis", address: "14 Ibrahim Al-Laqqani St., Korba", phone: "0100 90 70 000" },
-  { name: "Mohandeseen", address: "Moustafa Mahmoud Sq., Watany Bank Bldg.", phone: "0100 90 70 000" },
-  { name: "Sheikh Zayed", address: "Beverly Hills, Building 9, Clinic Complex", phone: "0100 90 70 000" },
-  { name: "New Cairo (Tagamoa)", address: "5th Settlement, South Teseen Rd.", phone: "0100 90 70 000" }
+  { name: "Heliopolis", address: "14 Ibrahim Al-Laqqani St.", phone: "0100 90 70 000" },
+  { name: "Mohandeseen", address: "Moustafa Mahmoud Sq.", phone: "0100 90 70 000" },
+  { name: "Sheikh Zayed", address: "Beverly Hills, Bldg 9", phone: "0100 90 70 000" },
+  { name: "New Cairo", address: "South Teseen Rd.", phone: "0100 90 70 000" }
 ];
 
-// --- COMPONENTS ---
 export default function LandingPage() {
+  
+  // Simple scroll reveal hook for Webflow-like entry animations
+  const observerRef = useRef(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.reveal').forEach(el => {
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(40px)';
+      el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)';
+      observer.observe(el);
+    });
+    
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="landing-page">
       
-      {/* HERO SECTION */}
-      <section className="section" style={{ backgroundColor: 'var(--brand-blue)', color: '#fff', padding: '120px 0' }}>
-        <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>
-          <span className="eyebrow" style={{ color: 'var(--brand-green)' }}>Established 1964</span>
-          <h1 className="heading-lg" style={{ color: '#fff', marginBottom: '24px' }}>
+      {/* 1. HERO SECTION - Emulating your provided screenshot */}
+      <section style={{ backgroundColor: 'var(--brand-blue)', color: '#fff', paddingTop: '140px', paddingBottom: '160px', position: 'relative', overflow: 'hidden' }}>
+        
+        {/* Abstract Background Typography (Webflow Style) */}
+        <div style={{ position: 'absolute', top: '10%', left: '-5%', fontSize: '15vw', fontFamily: 'var(--font-serif)', color: 'rgba(255,255,255,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>
+          Since 1964
+        </div>
+        
+        <div className="container" style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+          
+          {/* Floating Badges */}
+          <div className="floating-badges">
+            <div className="glass-panel floating" style={{ position: 'absolute', top: '10%', left: '0', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-dark)' }}>
+              <span style={{ background: 'var(--brand-blue)', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>✓</span>
+              <span style={{ fontWeight: '600', fontSize: '0.85rem' }}>Board Certified</span>
+            </div>
+            <div className="glass-panel floating-delayed" style={{ position: 'absolute', bottom: '15%', right: '5%', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-dark)' }}>
+              <span style={{ fontSize: '1.2rem' }}>⭐</span>
+              <div>
+                <div style={{ fontWeight: '700', fontSize: '0.9rem', lineHeight: '1' }}>4.9/5</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>1,200+ Reviews</div>
+              </div>
+            </div>
+          </div>
+
+          <span className="eyebrow reveal" style={{ color: 'var(--brand-green)' }}>Established 1964</span>
+          
+          <h1 className="heading-xl reveal" style={{ color: '#fff', marginBottom: '24px' }}>
             Advanced Dermatology <br />
-            <span style={{ color: 'var(--brand-green)' }}>& Laser Excellence</span>
+            <em style={{ color: 'var(--brand-green)', fontStyle: 'normal' }}>& Laser Excellence</em>
           </h1>
-          <p style={{ fontSize: '1.2rem', marginBottom: '40px', opacity: 0.9 }}>
+          
+          <p className="reveal" style={{ fontSize: '1.15rem', maxWidth: '680px', margin: '0 auto 48px', color: 'rgba(255,255,255,0.9)' }}>
             Pioneering skin health and aesthetic medicine in Egypt. Experience world-class, evidence-based care across our four specialized branches.
           </p>
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-            <button className="btn btn-primary" style={{ backgroundColor: 'var(--brand-green)', color: '#1e293b' }}>Book Consultation</button>
-            <button className="btn btn-outline" style={{ borderColor: '#fff', color: '#fff' }}>View Treatments</button>
+          
+          <div className="reveal" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/book" className="btn btn-primary">Book Consultation</Link>
+            <a href="#services" className="btn btn-outline">View Treatments</a>
           </div>
         </div>
       </section>
 
-      {/* ABOUT, MISSION & VISION */}
+      {/* 2. THE BENTO BOX LEGACY SECTION */}
       <section className="section bg-white" id="about">
-        <div className="container grid-2" style={{ alignItems: 'center' }}>
-          <div>
-            <span className="eyebrow">Our Legacy</span>
-            <h2 className="heading-md">Rooted in Academic Excellence</h2>
-            <p className="text-mid" style={{ marginBottom: '20px' }}>
-              Founded in 1964 by <strong>Prof. Dr. Abdel-Rahim Abdallah</strong>, former Head of the Dermatology Department at Ain Shams University, Cutis has evolved into Egypt's foremost authority in skin health.
-            </p>
-            <div style={{ background: 'var(--bg-main)', padding: '24px', borderRadius: '12px', borderLeft: '4px solid var(--brand-blue)', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Our Mission</h3>
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-mid)' }}>To deliver world-class, evidence-based dermatological and aesthetic care, combining academic excellence with advanced technology to enhance patient well-being and confidence.</p>
+        <div className="container">
+          <div className="bento-grid">
+            
+            {/* Main Bento Intro */}
+            <div className="bento-item reveal" style={{ gridColumn: 'span 8', background: 'var(--bg-main)', border: 'none' }}>
+              <span className="eyebrow">Our Legacy</span>
+              <h2 className="heading-lg" style={{ marginBottom: '20px' }}>Rooted in Academic<br/><em style={{ color: 'var(--brand-blue)', fontStyle: 'italic' }}>Excellence</em></h2>
+              <p className="text-mid" style={{ fontSize: '1.1rem', maxWidth: '500px' }}>
+                Founded in 1964 by <strong>Prof. Dr. Abdel-Rahim Abdallah</strong>, former Head of Dermatology at Ain Shams University, Cutis has evolved into Egypt's foremost authority in skin health.
+              </p>
             </div>
-            <div style={{ background: 'var(--bg-main)', padding: '24px', borderRadius: '12px', borderLeft: '4px solid var(--brand-green)' }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Our Vision</h3>
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-mid)' }}>To remain the gold standard for clinical and aesthetic patient outcomes in the Middle East, pioneering innovative treatments through continuous research.</p>
+
+            {/* Highlight Bento */}
+            <div className="bento-item reveal" style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'var(--brand-blue)', color: '#fff', border: 'none' }}>
+              <div style={{ fontSize: '3.5rem', fontWeight: '700', color: 'var(--brand-green)', lineHeight: '1', marginBottom: '10px' }}>50K+</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: '500' }}>Patients safely treated with evidence-based protocols.</div>
             </div>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {CLINIC_VALUES.map((val, idx) => (
-              <div key={idx} style={{ display: 'flex', gap: '16px', padding: '20px', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-lt)' }}>
-                <div style={{ fontSize: '2rem' }}>{val.icon}</div>
-                <div>
-                  <h4 style={{ color: 'var(--brand-blue)', marginBottom: '4px' }}>{val.title}</h4>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-mid)' }}>{val.desc}</p>
-                </div>
-              </div>
-            ))}
+
+            {/* Mission Bento */}
+            <div className="bento-item reveal" style={{ gridColumn: 'span 6' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--brand-blue-lt)', color: 'var(--brand-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '20px' }}>🎯</div>
+              <h3 style={{ fontSize: '1.4rem', marginBottom: '12px' }}>Our Mission</h3>
+              <p style={{ color: 'var(--text-mid)' }}>To deliver world-class dermatological and aesthetic care, combining academic rigor with FDA-approved technology to enhance patient well-being.</p>
+            </div>
+
+            {/* Vision Bento */}
+            <div className="bento-item reveal" style={{ gridColumn: 'span 6' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(189, 224, 56, 0.3)', color: 'var(--brand-green-dk)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '20px' }}>👁️</div>
+              <h3 style={{ fontSize: '1.4rem', marginBottom: '12px' }}>Our Vision</h3>
+              <p style={{ color: 'var(--text-mid)' }}>To remain the absolute gold standard for clinical and aesthetic patient outcomes in the Middle East through continuous medical research.</p>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* DETAILED SERVICES */}
-      <section className="section" id="services">
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-            <span className="eyebrow">Clinical Departments</span>
-            <h2 className="heading-md">Comprehensive Dermatological Care</h2>
+      {/* 3. MODERN SERVICES CARDS */}
+      <section className="section" id="services" style={{ overflow: 'hidden' }}>
+        <div className="blob-bg" style={{ top: '20%', right: '-10%' }}></div>
+        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+          
+          <div className="reveal" style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <span className="eyebrow">Departments</span>
+            <h2 className="heading-md">Comprehensive Care</h2>
           </div>
           
-          <div className="grid-3">
+          <div className="bento-grid">
             {SERVICES.map((dept, idx) => (
-              <div key={idx} style={{ background: '#fff', borderRadius: '16px', padding: '32px', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-lt)' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '12px', background: 'rgba(0, 156, 219, 0.1)', color: 'var(--brand-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', marginBottom: '24px' }}>
-                  {dept.icon}
-                </div>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '20px' }}>{dept.category}</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {dept.treatments.map((treatment, tIdx) => (
-                    <div key={tIdx} style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border-lt)' }}>
-                      <h4 style={{ fontSize: '1rem', color: 'var(--text-dark)', marginBottom: '4px' }}>{treatment.name}</h4>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{treatment.desc}</p>
-                    </div>
-                  ))}
-                </div>
+              <div key={idx} className="bento-item reveal" style={{ gridColumn: dept.colSpan, background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(20px)' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '24px' }}>{dept.icon}</div>
+                <div style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--brand-blue)', marginBottom: '8px' }}>{dept.category}</div>
+                <h3 style={{ fontSize: '1.6rem', marginBottom: '16px' }}>{dept.title}</h3>
+                <p style={{ color: 'var(--text-mid)', marginBottom: '32px' }}>{dept.desc}</p>
+                <Link to="/book" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: '600', color: 'var(--brand-green-dk)' }}>
+                  Explore Treatments <span style={{ fontSize: '1.2rem' }}>→</span>
+                </Link>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* BRANCHES */}
-      <section className="section bg-white" id="locations">
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <h2 className="heading-md">Our Locations</h2>
-            <p className="text-mid">Four premium facilities serving Greater Cairo.</p>
-          </div>
-          <div className="grid-4">
-            {BRANCHES.map((branch, idx) => (
-              <div key={idx} style={{ padding: '24px', background: 'var(--bg-main)', borderRadius: '12px', textAlign: 'center', border: '1px solid var(--border-lt)' }}>
-                <h4 style={{ color: 'var(--brand-blue)', fontSize: '1.1rem', marginBottom: '8px' }}>📍 {branch.name}</h4>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-mid)', marginBottom: '12px' }}>{branch.address}</p>
-                <p style={{ fontWeight: '600', color: 'var(--brand-green)' }}>📞 {branch.phone}</p>
-              </div>
-            ))}
+      {/* 4. OVERLAPPING CTA BANNER */}
+      <section className="section" style={{ paddingBottom: '0' }}>
+        <div className="container reveal">
+          <div style={{ background: 'var(--text-dark)', borderRadius: '32px', padding: '80px 60px', color: '#fff', position: 'relative', overflow: 'hidden', transform: 'translateY(60px)', zIndex: 10 }}>
+            
+            <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.5 }}></div>
+            
+            <div style={{ position: 'relative', zIndex: 2, maxWidth: '600px' }}>
+              <h2 className="heading-lg" style={{ color: '#fff', marginBottom: '20px' }}>Begin your skin journey today.</h2>
+              <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.7)', marginBottom: '40px' }}>Schedule a private consultation at any of our four premium branches across Greater Cairo.</p>
+              <Link to="/book" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '1rem' }}>Book Your Visit</Link>
+            </div>
           </div>
         </div>
       </section>
