@@ -1,4 +1,3 @@
-// src/components/Footer.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/global.css';
@@ -12,8 +11,8 @@ const BRANCHES = [
 
 export default function Footer() {
   return (
-<footer style={{ background: '#0a0f1a', color: '#f8fafc', paddingTop: '80px', paddingBottom: '30px' }}>    
-  <div className="container">
+    <footer style={{ background: '#0a0f1a', color: '#f8fafc', paddingTop: '80px', paddingBottom: '30px' }}>
+      <div className="container">
         
         <div className="grid-4" style={{ marginBottom: '60px', gap: '40px' }}>
           
@@ -31,10 +30,11 @@ export default function Footer() {
             </p>
           </div>
 
-     {/* Quick Links */}
+          {/* Quick Links */}
           <div>
             <h4 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '20px', fontFamily: 'var(--font-serif)' }}>About Cutis</h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li><Link to="/doctors" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Medical Team</Link></li>
               <li><Link to="/history" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Our History</Link></li>
               <li><Link to="/values" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Core Values</Link></li>
               <li><a href="/#services" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Clinical Departments</a></li>
