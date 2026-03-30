@@ -22,16 +22,17 @@ export default function Navigation() {
 
         {/* Links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <Link to="/history" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Our History</Link>
+          <Link to="/values" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Core Values</Link>
+          
           {isHome && (
             <>
-              <a href="#about" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Our Legacy</a>
               <a href="#services" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Treatments</a>
               <a href="#locations" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Branches</a>
             </>
           )}
-          <Link to="/book" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>Book Consultation</Link>
           
-          {/* NEW: Staff Portal Link */}
+          <Link to="/book" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>Book Consultation</Link>
           <Link to="/admin" className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.85rem', borderWidth: '1px' }}>Staff Portal</Link>
         </div>
 
