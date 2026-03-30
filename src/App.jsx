@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
 import BookingPage from './pages/BookingPage';
-// import AdminDashboard from './pages/AdminDashboard'; // We will build this next
+import AdminDashboard from './pages/AdminDashboard'; // <-- Import the new component
 
 export default function App() {
   return (
@@ -15,7 +15,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/book" element={<BookingPage />} />
-            {/* <Route path="/admin" element={<AdminDashboard />} /> */}
+            <Route path="/admin" element={<AdminDashboard />} /> {/* <-- Activate the route */}
           </Routes>
         </main>
       </div>
