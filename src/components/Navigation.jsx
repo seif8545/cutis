@@ -30,6 +30,9 @@ export default function Navigation() {
             </>
           )}
           <Link to="/book" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>Book Consultation</Link>
+          
+          {/* NEW: Staff Portal Link */}
+          <Link to="/admin" className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '0.85rem', borderWidth: '1px' }}>Staff Portal</Link>
         </div>
 
       </div>
