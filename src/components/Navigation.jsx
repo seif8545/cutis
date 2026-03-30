@@ -22,6 +22,8 @@ export default function Navigation() {
 
         {/* Links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          
+          <Link to="/doctors" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Medical Team</Link> {/* <-- NEW LINK */}
           <Link to="/history" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Our History</Link>
           <Link to="/values" style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-mid)' }}>Core Values</Link>
           
