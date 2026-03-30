@@ -12,7 +12,7 @@ const BRANCHES = [
 
 export default function Footer() {
   return (
-<footer style={{ background: '#0a0f1a', color: '#f8fafc', paddingTop: '160px', paddingBottom: '30px' }}>    
+<footer style={{ background: '#0a0f1a', color: '#f8fafc', paddingTop: '80px', paddingBottom: '30px' }}>    
   <div className="container">
         
         <div className="grid-4" style={{ marginBottom: '60px', gap: '40px' }}>
