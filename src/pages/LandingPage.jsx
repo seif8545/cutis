@@ -161,7 +161,7 @@ export default function LandingPage() {
         </div>
       </section>
 
- {/* 4. ENCLOSED CTA BANNER */}
+      {/* 4. ENCLOSED CTA BANNER */}
       <section className="section bg-white" style={{ paddingBottom: '100px' }}>
         <div className="container reveal">
           <div style={{ 
@@ -174,18 +174,6 @@ export default function LandingPage() {
             boxShadow: 'var(--shadow-md)',
             border: '1px solid rgba(255,255,255,0.05)'
           }}>
-            
-            {/* The decorative blurred glow */}
-            <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.4 }}></div>
-            
-            <div style={{ position: 'relative', zIndex: 2, maxWidth: '600px' }}>
-              <h2 className="heading-lg" style={{ color: '#fff', marginBottom: '20px' }}>Begin your skin journey today.</h2>
-              <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.7)', marginBottom: '40px' }}>Schedule a private consultation at any of our four premium branches across Greater Cairo.</p>
-              <Link to="/book" className="btn btn-primary" style={{ padding: '16px 40px', fontSize: '1rem' }}>Book Your Visit</Link>
-            </div>
-          </div>
-        </div>
-      </section>
             
             {/* The decorative blurred glow */}
             <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.4 }}></div>
