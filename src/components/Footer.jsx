@@ -34,6 +34,7 @@ export default function Footer() {
           <div>
             <h4 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '20px', fontFamily: 'var(--font-serif)' }}>About Cutis</h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li><Link to="/services" style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Our Services</Link></li>
               <li><Link to="/doctors" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Medical Team</Link></li>
               <li><Link to="/history" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Our History</Link></li>
               <li><Link to="/values" style={{ fontSize: '0.85rem', color: '#cbd5e1', transition: 'color 0.2s' }}>Core Values</Link></li>
