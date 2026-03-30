@@ -1,3 +1,4 @@
+// src/pages/LandingPage.jsx
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/global.css';
@@ -29,7 +30,6 @@ const SERVICES = [
 
 export default function LandingPage() {
   
-  // Scroll reveal hook for buttery-smooth entry animations
   const observerRef = useRef(null);
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -56,15 +56,11 @@ export default function LandingPage() {
       
       {/* 1. HERO SECTION */}
       <section style={{ backgroundColor: 'var(--brand-blue)', color: '#fff', paddingTop: '140px', paddingBottom: '160px', position: 'relative', overflow: 'hidden' }}>
-        
-        {/* Abstract Background Typography */}
         <div style={{ position: 'absolute', top: '10%', left: '-5%', fontSize: '15vw', fontFamily: 'var(--font-serif)', color: 'rgba(255,255,255,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none' }}>
           Since 1964
         </div>
         
         <div className="container" style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
-          
-          {/* Floating Badges */}
           <div className="floating-badges">
             <div className="glass-panel floating" style={{ position: 'absolute', top: '10%', left: '0', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-dark)' }}>
               <span style={{ background: 'var(--brand-blue)', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>✓</span>
@@ -80,16 +76,13 @@ export default function LandingPage() {
           </div>
 
           <span className="eyebrow reveal" style={{ color: 'var(--brand-green)' }}>Established 1964</span>
-          
           <h1 className="heading-xl reveal" style={{ color: '#fff', marginBottom: '24px' }}>
             Advanced Dermatology <br />
             <em style={{ color: 'var(--brand-green)', fontStyle: 'normal' }}>& Laser Excellence</em>
           </h1>
-          
           <p className="reveal" style={{ fontSize: '1.15rem', maxWidth: '680px', margin: '0 auto 48px', color: 'rgba(255,255,255,0.9)' }}>
             Pioneering skin health and aesthetic medicine in Egypt. Experience world-class, evidence-based care across our four specialized branches.
           </p>
-          
           <div className="reveal" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/book" className="btn btn-primary">Book Consultation</Link>
             <a href="#services" className="btn btn-outline">View Treatments</a>
@@ -101,8 +94,6 @@ export default function LandingPage() {
       <section className="section bg-white" id="about">
         <div className="container">
           <div className="bento-grid">
-            
-            {/* Main Bento Intro */}
             <div className="bento-item reveal" style={{ gridColumn: 'span 8', background: 'var(--bg-main)', border: 'none' }}>
               <span className="eyebrow">Our Legacy</span>
               <h2 className="heading-lg" style={{ marginBottom: '20px' }}>Rooted in Academic<br/><em style={{ color: 'var(--brand-blue)', fontStyle: 'italic' }}>Excellence</em></h2>
@@ -111,26 +102,28 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Highlight Bento */}
             <div className="bento-item reveal" style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'var(--brand-blue)', color: '#fff', border: 'none' }}>
               <div style={{ fontSize: '3.5rem', fontWeight: '700', color: 'var(--brand-green)', lineHeight: '1', marginBottom: '10px' }}>50K+</div>
               <div style={{ fontSize: '1.1rem', fontWeight: '500' }}>Patients safely treated with evidence-based protocols.</div>
             </div>
 
-            {/* Mission Bento */}
+            {/* Mission Bento - Updated with official text */}
             <div className="bento-item reveal" style={{ gridColumn: 'span 6' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--brand-blue-lt)', color: 'var(--brand-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '20px' }}>🎯</div>
               <h3 style={{ fontSize: '1.4rem', marginBottom: '12px' }}>Our Mission</h3>
-              <p style={{ color: 'var(--text-mid)' }}>To deliver world-class dermatological and aesthetic care, combining academic rigor with FDA-approved technology to enhance patient well-being.</p>
+              <p style={{ color: 'var(--text-mid)' }}>
+                Our purpose is to provide our clients with the richest platform of Skin Care services. In order to achieve this goal, we devote ourselves to hiring the most qualified Doctors whom we continuously train to the latest trends in the field. We aim at having the biggest number of customers with branches across the Middle East to put our brand on top of the Dermatology field in the region.
+              </p>
             </div>
 
-            {/* Vision Bento */}
+            {/* Vision Bento - Updated with official text */}
             <div className="bento-item reveal" style={{ gridColumn: 'span 6' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(189, 224, 56, 0.3)', color: 'var(--brand-green-dk)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '20px' }}>👁️</div>
               <h3 style={{ fontSize: '1.4rem', marginBottom: '12px' }}>Our Vision</h3>
-              <p style={{ color: 'var(--text-mid)' }}>To remain the absolute gold standard for clinical and aesthetic patient outcomes in the Middle East through continuous medical research.</p>
+              <p style={{ color: 'var(--text-mid)' }}>
+                To be the largest and most reputable Skin Care Destination covering the entire Middle East Region and offering a wide range of services from critically challenging dermatological treatments to the softer cosmetic procedures & skin treatment using the most advanced scientific medical approach.
+              </p>
             </div>
-
           </div>
         </div>
       </section>
@@ -139,7 +132,6 @@ export default function LandingPage() {
       <section className="section" id="services" style={{ overflow: 'hidden' }}>
         <div className="blob-bg" style={{ top: '20%', right: '-10%' }}></div>
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          
           <div className="reveal" style={{ textAlign: 'center', marginBottom: '60px' }}>
             <span className="eyebrow">Departments</span>
             <h2 className="heading-md">Comprehensive Care</h2>
@@ -174,8 +166,6 @@ export default function LandingPage() {
             boxShadow: 'var(--shadow-md)',
             border: '1px solid rgba(255,255,255,0.05)'
           }}>
-            
-            {/* The decorative blurred glow */}
             <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '400px', height: '400px', background: 'var(--brand-blue)', borderRadius: '50%', filter: 'blur(80px)', opacity: 0.4 }}></div>
             
             <div style={{ position: 'relative', zIndex: 2, maxWidth: '600px' }}>
@@ -186,7 +176,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
