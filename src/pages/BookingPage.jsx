@@ -2,15 +2,14 @@
 import React, { useState } from 'react';
 import '../styles/global.css';
 
-const VISIT_TYPES = ["Clinics", "Home Visit", "Online"];
-const BRANCHES = ["Sheikh Zayed", "East Cairo", "North Coast", "Heliopolis", "Mohandeseen"];
+const BRANCHES = ["Sheikh Zayed", "Fifth Settlement", "Heliopolis", "Mohandeseen"];
 const DEPTS = ["Cosmetic Dermatology", "Advanced Laser Center", "Clinical Dermatology"];
 const DOCTORS = ["Prof. Abdel-Rahim Abdallah", "Prof. Marwa Abdallah", "A. Prof. Mahmoud Abdallah", "Dr. Nehad Youssef", "Dr. Azza El-Azhary"];
 
 export default function BookingPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    visitType: 'Clinics',
+    visitType: 'Clinics', // Defaulted to Clinics
     branch: '',
     department: '',
     doctor: '',
@@ -55,25 +54,10 @@ export default function BookingPage() {
 
         <div className="glass-panel" style={{ padding: '48px', border: 'none', boxShadow: 'var(--shadow-md)' }}>
           
-          {/* STEP 1: SERVICE SELECTION (Segmented Pills) */}
+          {/* STEP 1: BRANCH & CLINIC SELECTION */}
           {step === 1 && (
             <div className="reveal">
-              <h2 className="heading-md">Select Your Visit</h2>
-              
-              <div className="form-group">
-                <label className="custom-label">Visit Type</label>
-                <div className="pill-grid">
-                  {VISIT_TYPES.map(type => (
-                    <button 
-                      key={type} 
-                      className={`pill-btn ${formData.visitType === type ? 'active' : ''}`}
-                      onClick={() => updateField('visitType', type)}
-                    >
-                      {type}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <h2 className="heading-md">Select Your Location</h2>
 
               <div className="form-group">
                 <label className="custom-label">Preferred Branch</label>
@@ -136,7 +120,7 @@ export default function BookingPage() {
             </div>
           )}
 
-          {/* STEP 3: MAIN CONCERN (Simplified) */}
+          {/* STEP 3: MAIN CONCERN */}
           {step === 3 && (
             <div className="reveal">
               <h2 className="heading-md">Medical Concern</h2>
@@ -170,7 +154,6 @@ export default function BookingPage() {
                 <input type="text" className="custom-input" placeholder="List any medications" value={formData.medications} onChange={(e) => updateField('medications', e.target.value)} />
               </div>
               
-              {/* Reference Image ReCAPTCHA style element */}
               <div style={{ padding: '16px', border: '1px solid var(--border-lt)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', background: '#fcfcfc' }}>
                 <input type="checkbox" style={{ width: '20px', height: '20px' }} required />
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-mid)' }}>I'm not a robot</span>
