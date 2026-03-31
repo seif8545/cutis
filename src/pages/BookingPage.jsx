@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import '../styles/global.css';
 
 const BRANCHES = ["Sheikh Zayed", "Fifth Settlement", "Heliopolis", "Mohandeseen"];
-const DOCTORS = ["Prof. Abdel-Rahim Abdallah", "Prof. Marwa Abdallah", "A. Prof. Mahmoud Abdallah", "Dr. Nehad Youssef", "Dr. Azza El-Azhary"];
 
-// We upgrade the Departments from a simple array to an array of objects with descriptions
 const CLINICS = [
   {
     id: "Cosmetic Dermatology",
@@ -23,13 +21,23 @@ const CLINICS = [
   }
 ];
 
+// Upgraded doctors array to include their specific titles for the new cards
+const DOCTORS = [
+  { id: "Any", name: "Any Available Specialist", desc: "Earliest available appointment" },
+  { id: "Prof. Abdel-Rahim Abdallah", name: "Prof. Dr. Abdel-Rahim", desc: "Founder & Guru of Dermatology" },
+  { id: "Prof. Marwa Abdallah", name: "Prof. Dr. Marwa Abdallah", desc: "Professor of Dermatology" },
+  { id: "A. Prof. Mahmoud Abdallah", name: "A. Prof. Dr. Mahmoud", desc: "Associate Professor" },
+  { id: "Dr. Nehad Youssef", name: "Dr. Nehad Youssef", desc: "Specialist Dermatologist" },
+  { id: "Dr. Azza El-Azhary", name: "Dr. Azza El-Azhary", desc: "Head of Dermatology" }
+];
+
 export default function BookingPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     visitType: 'Clinics',
     branch: '',
     department: '',
-    doctor: '',
+    doctor: '', // Empty means "Any Available"
     fullName: '',
     phone: '',
     email: '',
@@ -82,17 +90,14 @@ export default function BookingPage() {
                   {CLINICS.map(clinic => (
                     <button 
                       key={clinic.id} 
-                      className={`clinic-card ${formData.department === clinic.id ? 'active' : ''}`}
+                      className={`selection-card ${formData.department === clinic.id ? 'active' : ''}`}
                       onClick={() => updateField('department', clinic.id)}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <div className="clinic-title">{clinic.title}</div>
-                        {/* Checkmark appears when selected */}
-                        {formData.department === clinic.id && (
-                          <div style={{ color: 'var(--brand-blue)', fontSize: '1.2rem', fontWeight: 'bold' }}>✓</div>
-                        )}
+                        <div className="card-title">{clinic.title}</div>
+                        {formData.department === clinic.id && <div className="check-icon">✓</div>}
                       </div>
-                      <div className="clinic-desc">{clinic.desc}</div>
+                      <div className="card-desc">{clinic.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -114,16 +119,31 @@ export default function BookingPage() {
                 </div>
               </div>
 
-              {/* Doctor Dropdown */}
+              {/* New Doctor Selection Grid */}
               <div className="form-group" style={{ marginBottom: '40px' }}>
-                <label className="custom-label">Specific Doctor (Optional)</label>
-                <select className="custom-select" value={formData.doctor} onChange={(e) => updateField('doctor', e.target.value)}>
-                  <option value="">Any Available Specialist</option>
-                  {DOCTORS.map(doc => <option key={doc} value={doc}>{doc}</option>)}
-                </select>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                  Leave blank to be assigned the earliest available expert for your selected clinic.
-                </p>
+                <label className="custom-label">Preferred Doctor (Optional)</label>
+                <div className="grid-2" style={{ gap: '12px' }}>
+                  {DOCTORS.map(doc => {
+                    // Logic to handle the "Any" selection state visually
+                    const isActive = formData.doctor === doc.id || (doc.id === 'Any' && formData.doctor === '');
+                    
+                    return (
+                      <button 
+                        key={doc.id} 
+                        className={`selection-card compact ${isActive ? 'active' : ''}`}
+                        onClick={() => updateField('doctor', doc.id === 'Any' ? '' : doc.id)}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div>
+                            <div className="card-title" style={{ fontSize: '0.95rem' }}>{doc.name}</div>
+                            <div className="card-desc" style={{ fontSize: '0.8rem', marginTop: '2px' }}>{doc.desc}</div>
+                          </div>
+                          {isActive && <div className="check-icon">✓</div>}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
               <button className="btn btn-primary" style={{ width: '100%' }} onClick={nextStep} disabled={!formData.branch || !formData.department}>Continue →</button>
@@ -155,23 +175,24 @@ export default function BookingPage() {
             </div>
           )}
 
-          {/* STEP 3: MAIN CONCERN */}
+          {/* STEP 3: MAIN CONCERN (Now completely Optional) */}
           {step === 3 && (
             <div className="reveal">
-              <h2 className="heading-md">Medical Concern</h2>
+              <h2 className="heading-md">Visit Details <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: '400' }}>(Optional)</span></h2>
               <div className="form-group">
-                <label className="custom-label">What is your main concern? *</label>
+                <label className="custom-label">Is there anything specific the doctor should know beforehand?</label>
                 <textarea 
                   className="custom-input" 
                   rows="6" 
-                  placeholder="Please describe the skin issue or treatment you are interested in..." 
+                  placeholder="Feel free to describe the skin issue, your desired treatment, or any specific symptoms you've been experiencing..." 
                   value={formData.chiefComplaint}
                   onChange={(e) => updateField('chiefComplaint', e.target.value)}
                 ></textarea>
               </div>
               <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
                 <button className="btn btn-outline" style={{ flex: 1, color: 'var(--text-dark)', borderColor: 'var(--border-lt)' }} onClick={prevStep}>Back</button>
-                <button className="btn btn-primary" style={{ flex: 2 }} onClick={nextStep} disabled={!formData.chiefComplaint}>Medical History →</button>
+                {/* Note: The 'disabled' property is removed here so they can skip this step entirely */}
+                <button className="btn btn-primary" style={{ flex: 2 }} onClick={nextStep}>Medical History →</button>
               </div>
             </div>
           )}
@@ -218,13 +239,12 @@ export default function BookingPage() {
         </div>
       </div>
 
-      {/* Embedded CSS for the new highly-polished UI elements */}
       <style>{`
         .form-group { margin-bottom: 24px; }
         .custom-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
         
-        /* New Clinic Selection Cards */
-        .clinic-card {
+        /* Unified Selection Cards for Clinics & Doctors */
+        .selection-card {
           width: 100%;
           text-align: left;
           padding: 20px 24px;
@@ -234,14 +254,14 @@ export default function BookingPage() {
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .clinic-card:hover { border-color: var(--brand-blue-lt); box-shadow: var(--shadow-sm); }
-        .clinic-card.active { 
-          background: var(--brand-blue-lt); 
-          border-color: var(--brand-blue); 
-        }
-        .clinic-title { font-weight: 700; color: var(--text-dark); font-size: 1.05rem; }
-        .clinic-card.active .clinic-title { color: var(--brand-blue); }
-        .clinic-desc { font-size: 0.85rem; color: var(--text-mid); line-height: 1.5; margin-top: 4px; }
+        .selection-card.compact { padding: 16px; }
+        .selection-card:hover { border-color: var(--brand-blue-lt); box-shadow: var(--shadow-sm); }
+        .selection-card.active { background: var(--brand-blue-lt); border-color: var(--brand-blue); }
+        
+        .card-title { font-weight: 700; color: var(--text-dark); font-size: 1.05rem; }
+        .selection-card.active .card-title { color: var(--brand-blue); }
+        .card-desc { font-size: 0.85rem; color: var(--text-mid); line-height: 1.5; margin-top: 4px; }
+        .check-icon { color: var(--brand-blue); font-size: 1.2rem; font-weight: bold; }
 
         /* Pill Grid for Locations */
         .pill-grid { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -254,12 +274,12 @@ export default function BookingPage() {
         .pill-btn.active { background: var(--text-dark); border-color: var(--text-dark); color: #fff; }
 
         /* General Inputs */
-        .custom-input, .custom-select { 
+        .custom-input { 
           width: 100%; padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border-lt);
           font-family: var(--font-sans); font-size: 0.95rem; background: #f8fafc; color: var(--text-dark);
-          transition: all 0.2s ease;
+          transition: all 0.2s ease; resize: vertical;
         }
-        .custom-input:focus, .custom-select:focus { outline: none; border-color: var(--brand-blue); background: #fff; box-shadow: 0 0 0 4px var(--brand-blue-lt); }
+        .custom-input:focus { outline: none; border-color: var(--brand-blue); background: #fff; box-shadow: 0 0 0 4px var(--brand-blue-lt); }
       `}</style>
     </div>
   );
