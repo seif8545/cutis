@@ -35,16 +35,15 @@ const buildDefaultAvailability = () => {
 };
 
 const INIT_APPOINTMENTS = [
-  { id:1,  patientId:1, patientName:'Sara Ahmed',      doctorId:2, date:'2026-04-07', time:'10:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Confirmed', notes:'' },
-  { id:2,  patientId:2, patientName:'Karim Hassan',    doctorId:4, date:'2026-04-07', time:'11:30', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Pending',   notes:'' },
-  { id:3,  patientId:3, patientName:'Mona Samir',      doctorId:1, date:'2026-04-07', time:'09:00', department:'Clinical Dermatology',  branch:'Sheikh Zayed',     status:'Confirmed', notes:'' },
-  { id:4,  patientId:4, patientName:'Ahmed Fouad',     doctorId:3, date:'2026-04-07', time:'14:00', department:'Cosmetic Dermatology',  branch:'Heliopolis',       status:'Confirmed', notes:'' },
-  { id:5,  patientId:5, patientName:'Layla Mostafa',   doctorId:5, date:'2026-04-08', time:'13:00', department:'Advanced Laser Center', branch:'Sheikh Zayed',     status:'Confirmed', notes:'' },
-  { id:6,  patientId:1, patientName:'Sara Ahmed',      doctorId:2, date:'2026-04-08', time:'15:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Pending',   notes:'' },
-  { id:7,  patientId:6, patientName:'Omar Khalil',     doctorId:1, date:'2026-04-09', time:'10:30', department:'Clinical Dermatology',  branch:'Sheikh Zayed',     status:'Confirmed', notes:'' },
-  { id:8,  patientId:7, patientName:'Nadia Ibrahim',   doctorId:4, date:'2026-04-09', time:'09:00', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Confirmed', notes:'' },
-  { id:9,  patientId:3, patientName:'Mona Samir',      doctorId:2, date:'2026-04-10', time:'11:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Pending',   notes:'' },
-  { id:10, patientId:8, patientName:'Hassan Ramadan',  doctorId:5, date:'2026-04-10', time:'14:30', department:'Clinical Dermatology',  branch:'Sheikh Zayed',     status:'Cancelled', notes:'' },
+  { id:1,  patientId:1, patientName:'Sara Ahmed',     doctorId:2, date:'2026-04-07', time:'10:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Confirmed', notes:'' },
+  { id:2,  patientId:2, patientName:'Karim Hassan',   doctorId:4, date:'2026-04-07', time:'11:30', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Pending',   notes:'' },
+  { id:3,  patientId:4, patientName:'Ahmed Fouad',    doctorId:3, date:'2026-04-07', time:'14:00', department:'Cosmetic Dermatology',  branch:'Heliopolis',       status:'Confirmed', notes:'' },
+  { id:4,  patientId:5, patientName:'Layla Mostafa',  doctorId:5, date:'2026-04-08', time:'13:00', department:'Advanced Laser Center', branch:'Sheikh Zayed',     status:'Confirmed', notes:'' },
+  { id:5,  patientId:1, patientName:'Sara Ahmed',     doctorId:2, date:'2026-04-08', time:'15:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Pending',   notes:'' },
+  { id:6,  patientId:7, patientName:'Nadia Ibrahim',  doctorId:4, date:'2026-04-09', time:'09:00', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Confirmed', notes:'' },
+  { id:7,  patientId:6, patientName:'Omar Khalil',    doctorId:3, date:'2026-04-09', time:'10:30', department:'Clinical Dermatology',  branch:'Heliopolis',       status:'Confirmed', notes:'' },
+  { id:8,  patientId:3, patientName:'Mona Samir',     doctorId:2, date:'2026-04-10', time:'11:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Pending',   notes:'' },
+  { id:9,  patientId:8, patientName:'Hassan Ramadan', doctorId:5, date:'2026-04-10', time:'14:30', department:'Clinical Dermatology',  branch:'Sheikh Zayed',     status:'Cancelled', notes:'' },
 ];
 
 const INIT_PATIENTS = [
