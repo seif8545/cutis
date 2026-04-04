@@ -7,8 +7,9 @@ const DOCTORS = [
     name: "Prof. Dr. Abdel-Rahim Abdallah",
     title: "Founder & The Guru of Dermatology",
     specialty: "Clinical Dermatology & Research",
+    legacy: true,
     bio: "Born in 1938, Prof. Dr. Abdel-Rahim Abdallah was graduated in 1959 as second in his class from Faculty of Medicine, Ain Shams University.\n\nIn 1964 he established his clinic in Heliopolis, which quickly became the most professional Dermatology & Venereology clinic in Heliopolis and subsequently in Egypt. In 1966 he received his PhD (Doctorate degree) and became a lecturer at Ain Shams University, after which he became the Chairman of the department in 1990.\n\nProf. Abdel-Rahim Abdallah is regarded as the Guru of Dermatology in Egypt and the Middle East. He lectures in several top Medical Schools & Universities in Europe, USA and the Far East in addition to chairing several International Congresses.\n\nProf. Abdel-Rahim Abdallah is the holder of the prominent Gustav Riehl Prize of Germany, which he was rewarded in recognition of his advanced research in Medicine.\n\nHe is the author of the first Atlas of Dermatology in the Middle East & the Co-author of \"Dermatology\", Bolongia, Jorizzo, Rapini et al. Mosby, 2003, 2007 & 2012.",
-    imageColor: "var(--brand-blue)"
+    imageColor: "#7a5c1e"
   },
   {
     id: 'dr-marwa',
@@ -46,15 +47,43 @@ const DOCTORS = [
 ];
 
 export default function DoctorsPage() {
-  const [activeDoctor, setActiveDoctor] = useState(DOCTORS[0]);
+  const activeDoctors = DOCTORS.filter(d => !d.legacy);
+  const legacyDoctors = DOCTORS.filter(d =>  d.legacy);
+
+  const [activeDoctor, setActiveDoctor] = useState(activeDoctors[0]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  const DoctorBtn = ({ doc }) => {
+    const isActive  = activeDoctor.id === doc.id;
+    const isLegacy  = doc.legacy;
+    return (
+      <button
+        onClick={() => setActiveDoctor(doc)}
+        style={{
+          textAlign: 'left', padding: '16px', borderRadius: '16px',
+          background: isActive ? (isLegacy ? '#fef9e7' : 'var(--brand-blue-lt)') : 'transparent',
+          border: isActive ? `1px solid ${isLegacy ? '#c9a84c' : 'var(--brand-blue)'}` : '1px solid transparent',
+          color: isActive ? (isLegacy ? '#7a5c00' : 'var(--brand-blue)') : 'var(--text-mid)',
+          transition: 'all 0.2s ease',
+          fontWeight: isActive ? '600' : '400',
+          width: '100%',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <span style={{ fontSize: '1.05rem' }}>{doc.name}</span>
+          {isLegacy && <span style={{ fontSize: '0.68rem', fontWeight: 700, background: '#f5e6b0', color: '#7a5c00', padding: '1px 7px', borderRadius: 10, border: '1px solid #c9a84c', whiteSpace: 'nowrap' }}>In Memoriam</span>}
+        </div>
+        <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>{doc.specialty}</div>
+      </button>
+    );
+  };
+
   return (
     <div className="page-wrapper" style={{ background: 'var(--bg-main)', minHeight: '100vh', paddingBottom: '100px' }}>
-      
+
       <section style={{ backgroundColor: 'var(--brand-blue)', color: '#fff', paddingTop: '100px', paddingBottom: '80px', textAlign: 'center' }}>
         <div className="container">
           <span className="eyebrow" style={{ color: 'var(--brand-green)' }}>Our Experts</span>
@@ -67,57 +96,77 @@ export default function DoctorsPage() {
 
       <section className="section" style={{ paddingTop: '60px' }}>
         <div className="container" style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', alignItems: 'flex-start' }}>
-          
+
+          {/* Sidebar */}
           <aside style={{ flex: '1 1 300px', background: '#fff', padding: '24px', borderRadius: '24px', border: '1px solid var(--border-lt)', boxShadow: 'var(--shadow-sm)' }}>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '20px', color: 'var(--text-dark)', paddingLeft: '12px' }}>Select a Doctor</h3>
+
+            {/* Active doctors */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+              {activeDoctors.map(doc => <DoctorBtn key={doc.id} doc={doc} />)}
+            </div>
+
+            {/* Legacy divider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '0 4px 16px' }}>
+              <div style={{ flex: 1, height: '1px', background: '#e8d988' }} />
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#7a5c00', textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>Founding Legacy</span>
+              <div style={{ flex: 1, height: '1px', background: '#e8d988' }} />
+            </div>
+
+            {/* Legacy doctors */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {DOCTORS.map((doc) => (
-                <button 
-                  key={doc.id}
-                  onClick={() => setActiveDoctor(doc)}
-                  style={{
-                    textAlign: 'left',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    background: activeDoctor.id === doc.id ? 'var(--brand-blue-lt)' : 'transparent',
-                    border: activeDoctor.id === doc.id ? '1px solid var(--brand-blue)' : '1px solid transparent',
-                    color: activeDoctor.id === doc.id ? 'var(--brand-blue)' : 'var(--text-mid)',
-                    transition: 'all 0.2s ease',
-                    fontWeight: activeDoctor.id === doc.id ? '600' : '400',
-                  }}
-                >
-                  <div style={{ fontSize: '1.05rem', marginBottom: '4px' }}>{doc.name}</div>
-                  <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>{doc.specialty}</div>
-                </button>
-              ))}
+              {legacyDoctors.map(doc => <DoctorBtn key={doc.id} doc={doc} />)}
             </div>
           </aside>
 
+          {/* Main panel */}
           <main style={{ flex: '2 1 600px' }}>
-            <div 
-              key={activeDoctor.id} 
-              style={{ 
-                background: '#fff', 
-                padding: '40px', 
-                borderRadius: '24px', 
-                border: '1px solid var(--border-lt)', 
+            {/* Memorial banner for legacy */}
+            {activeDoctor.legacy && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '16px',
+                background: 'linear-gradient(135deg,#fffbe6,#fef3c7)',
+                border: '1px solid #c9a84c', borderRadius: '16px',
+                padding: '18px 24px', marginBottom: '20px',
+              }}>
+                <span style={{ fontSize: '1.8rem', flexShrink: 0 }}>🕯</span>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#7a5c00', fontSize: '0.95rem' }}>In Memoriam</div>
+                  <div style={{ color: '#92700a', fontSize: '0.84rem', marginTop: 3, lineHeight: 1.5 }}>
+                    Prof. Dr. Abdel-Rahim Abdallah, the founder of Cutis, passed away leaving behind a legacy that continues to guide every patient we serve. His life's work is preserved here as a permanent tribute.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div
+              key={activeDoctor.id}
+              style={{
+                background: activeDoctor.legacy ? '#fffdf5' : '#fff',
+                padding: '40px',
+                borderRadius: '24px',
+                border: `1px solid ${activeDoctor.legacy ? '#e8d988' : 'var(--border-lt)'}`,
                 boxShadow: 'var(--shadow-md)',
-                animation: 'fadeIn 0.4s ease'
+                animation: 'fadeIn 0.4s ease',
               }}
             >
               <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', marginBottom: '32px' }}>
-                <div style={{ 
-                  width: '140px', height: '140px', borderRadius: '20px', background: activeDoctor.imageColor,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2.5rem', fontWeight: 'bold'
+                <div style={{
+                  width: '140px', height: '140px', borderRadius: '20px',
+                  background: activeDoctor.imageColor,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: '2.5rem', fontWeight: 'bold',
+                  border: activeDoctor.legacy ? '3px solid #c9a84c' : 'none',
+                  flexShrink: 0,
                 }}>
                   {activeDoctor.name.charAt(0)}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <div style={{ color: 'var(--brand-green-dk)', fontWeight: '700', fontSize: '0.9rem', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  <div style={{ fontWeight: '700', fontSize: '0.9rem', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '8px', color: activeDoctor.legacy ? '#c9a84c' : 'var(--brand-green-dk)' }}>
                     {activeDoctor.specialty}
                   </div>
-                  <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)', lineHeight: '1.1', marginBottom: '8px' }}>
+                  <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-serif)', color: activeDoctor.legacy ? '#5a4a1a' : 'var(--text-dark)', lineHeight: '1.1', marginBottom: '8px' }}>
                     {activeDoctor.name}
                   </h2>
                   <div style={{ fontSize: '1.1rem', color: 'var(--text-mid)' }}>{activeDoctor.title}</div>
@@ -125,8 +174,8 @@ export default function DoctorsPage() {
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid var(--border-lt)', paddingTop: '32px' }}>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>Biography</h3>
+              <div style={{ borderTop: `1px solid ${activeDoctor.legacy ? '#e8d988' : 'var(--border-lt)'}`, paddingTop: '32px' }}>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', color: activeDoctor.legacy ? '#7a5c00' : 'var(--text-dark)' }}>Biography</h3>
                 <div style={{ color: 'var(--text-mid)', fontSize: '1.1rem', lineHeight: '1.8' }}>
                   {activeDoctor.bio.split('\n\n').map((paragraph, index) => (
                     <p key={index} style={{ marginBottom: '16px' }}>{paragraph}</p>

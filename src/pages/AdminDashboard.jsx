@@ -517,7 +517,6 @@ function AppointmentsSection({ appointments, setAppointments }) {
   const clearAll = () => { setSearch(''); setFilterStatus('All'); setFilterDoctor('All'); setFilterDate(''); };
 
   const activeDoctors = DOCTORS.filter(d => !d.legacy);
-  const legacyDoctors = DOCTORS.filter(d =>  d.legacy);
 
   return (
     <div>
@@ -543,12 +542,7 @@ function AppointmentsSection({ appointments, setAppointments }) {
             <select value={filterDoctor} onChange={e=>setFilterDoctor(e.target.value)}
               style={{ padding:'0.5rem 0.75rem', borderRadius:8, border:`1.5px solid ${filterDoctor!=='All' ? C.primary : C.border}`, fontSize:'0.88rem', background:C.white, outline:'none', color:C.primary, minWidth:150 }}>
               <option value="All">All Doctors</option>
-              <optgroup label="Active Physicians">
-                {activeDoctors.map(d=><option key={d.id} value={d.id}>{d.short}</option>)}
-              </optgroup>
-              <optgroup label="── In Memoriam ──">
-                {legacyDoctors.map(d=><option key={d.id} value={d.id}>{d.short} (Legacy)</option>)}
-              </optgroup>
+              {activeDoctors.map(d=><option key={d.id} value={d.id}>{d.short}</option>)}
             </select>
           </div>
           {activeFilterCount > 0 && (
