@@ -1,180 +1,141 @@
-// src/pages/AdminDashboard.jsx
-import React, { useState, useEffect } from 'react';
-import '../styles/global.css';
+< !DOCTYPE html >
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Lawnn — لون | Coming Soon</title>
 
-// Mock Data to populate the dashboard since we don't have a real backend yet
-const INITIAL_BOOKINGS = [
-  { id: 'CUT-8832', name: 'Nourhan Ahmed', phone: '0101 234 5678', branch: 'Heliopolis', dept: 'Cosmetic Dermatology', status: 'Pending', date: '2026-04-02' },
-  { id: 'CUT-1029', name: 'Omar Youssef', phone: '0129 876 5432', branch: 'Sheikh Zayed', dept: 'Clinical Dermatology', status: 'Confirmed', date: '2026-04-05' },
-  { id: 'CUT-4511', name: 'Laila Mahmoud', phone: '0115 556 6677', branch: 'Mohandeseen', dept: 'Advanced Laser', status: 'Pending', date: '2026-04-06' }
-];
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                            <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&display=swap" rel="stylesheet">
 
-export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [bookings, setBookings] = useState(INITIAL_BOOKINGS);
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+                                <style>
+                                    * {
+                                        box - sizing: border-box;
+        }
+                                    body, html {
+                                        margin: 0;
+                                    padding: 0;
+                                    height: 100%;
+                                    background-color: #fffcf4;
+                                    color: #21326c;
+                                    font-family: 'DM Sans', sans-serif;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: center;
+                                    text-align: center;
+                                    position: relative;
+                                    overflow: hidden;
+        }
+                                    .bg-pattern {
+                                        position: absolute;
+                                    inset: 0;
+                                    z-index: -1;
+                                    background-image: radial-gradient(#21326c 0.7px, transparent 0.7px);
+                                    background-size: 30px 30px;
+                                    opacity: 0.1;
+        }
+                                    .glow-1 {
+                                        position: absolute;
+                                    top: -10%; right: -10%;
+                                    width: 400px; height: 400px;
+                                    background: #21326c;
+                                    border-radius: 50%;
+                                    filter: blur(100px);
+                                    opacity: 0.05;
+                                    z-index: -1;
+        }
+                                    .glow-2 {
+                                        position: absolute;
+                                    bottom: -10%; left: -10%;
+                                    width: 300px; height: 300px;
+                                    background: #ff9044;
+                                    border-radius: 50%;
+                                    filter: blur(80px);
+                                    opacity: 0.1;
+                                    z-index: -1;
+        }
+                                    .container {
+                                        padding: 2rem;
+                                    max-width: 800px;
+                                    animation: fadeIn 1s ease-out forwards;
+                                    position: relative;
+                                    z-index: 10;
+        }
 
-  // Check if admin is already logged in via session storage
-  useEffect(() => {
-    if (sessionStorage.getItem('admin_auth') === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
+                                    .logo-image {
+                                        max - width: 180px;
+                                    height: auto;
+                                    margin-bottom: 2rem;
+        }
 
-  // Login Handler
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (credentials.username === 'admin' && credentials.password === 'admin123') {
-      sessionStorage.setItem('admin_auth', 'true');
-      setIsAuthenticated(true);
-    } else {
-      alert('Invalid credentials. Try admin / admin123');
-    }
-  };
+                                    h1 {
+                                        font - family: 'Playfair Display', serif;
+                                    font-size: 4rem;
+                                    font-weight: 900;
+                                    margin: 0 0 1.5rem 0;
+                                    line-height: 1.1;
+        }
+                                    h1 em {
+                                        color: #ff9044;
+                                    font-style: italic;
+        }
+                                    p {
+                                        font - size: 1.25rem;
+                                    color: #21326c;
+                                    opacity: 0.85;
+                                    max-width: 600px;
+                                    margin: 0 auto 3rem auto;
+                                    line-height: 1.6;
+        }
 
-  // Logout Handler
-  const handleLogout = () => {
-    sessionStorage.removeItem('admin_auth');
-    setIsAuthenticated(false);
-  };
+                                    .cta-button {
+                                        display: inline-block;
+                                    background-color: #ff9044;
+                                    color: #ffffff;
+                                    font-family: 'DM Sans', sans-serif;
+                                    font-size: 1.1rem;
+                                    font-weight: 600;
+                                    text-decoration: none;
+                                    padding: 16px 36px;
+                                    border-radius: 50px;
+                                    box-shadow: 0 10px 20px -5px rgba(255, 144, 68, 0.4);
+                                    transition: all 0.3s ease;
+                                    cursor: pointer;
+        }
+                                    .cta-button:hover {
+                                        transform: translateY(-3px);
+                                    box-shadow: 0 15px 25px -5px rgba(255, 144, 68, 0.5);
+                                    background-color: #ff9f5c;
+        }
 
-  // Mock Action Handler
-  const updateStatus = (id, newStatus) => {
-    setBookings(bookings.map(b => b.id === id ? { ...b, status: newStatus } : b));
-  };
+                                    @keyframes fadeIn {
+                                        from {opacity: 0; transform: translateY(20px); }
+                                    to {opacity: 1; transform: translateY(0); }
+        }
 
-  // --- LOGIN VIEW ---
-  if (!isAuthenticated) {
-    return (
-      <div style={{ minHeight: 'calc(100vh - 70px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)' }}>
-        <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', width: '100%', maxWidth: '400px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-lt)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <div style={{ width: '48px', height: '48px', background: 'var(--brand-blue)', borderRadius: '12px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', fontWeight: 'bold', margin: '0 auto 16px' }}>C</div>
-            <h2 className="heading-md" style={{ marginBottom: '8px', fontSize: '1.8rem' }}>Staff Portal</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Secure access for clinic management</p>
-          </div>
-          
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '8px' }}>Username</label>
-              <input type="text" className="form-input" placeholder="admin" value={credentials.username} onChange={e => setCredentials({...credentials, username: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-lt)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', marginBottom: '8px' }}>Password</label>
-              <input type="password" className="form-input" placeholder="••••••••" value={credentials.password} onChange={e => setCredentials({...credentials, password: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-lt)' }} />
-            </div>
-            <button type="submit" className="btn btn-primary" style={{ background: 'var(--brand-green)', color: '#1e293b', width: '100%', marginTop: '10px' }}>Secure Sign In</button>
-            <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '10px' }}>Demo: admin / admin123</p>
-          </form>
-        </div>
-      </div>
-    );
-  }
+                                    @media (max-width: 600px) {
+                                        h1 {font - size: 2.75rem; }
+                                    p {font - size: 1.1rem; }
+                                    .logo-image {max - width: 140px; }
+        }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="bg-pattern"></div>
+                                <div class="glow-1"></div>
+                                <div class="glow-2"></div>
 
-  // --- DASHBOARD VIEW ---
-  const pendingCount = bookings.filter(b => b.status === 'Pending').length;
+                                <div class="container">
+                                    <img src="../images/lawnn.png" alt="Lawnn Logo" class="logo-image">
 
-  return (
-    <div style={{ display: 'flex', minHeight: 'calc(100vh - 70px)', background: 'var(--bg-main)' }}>
-      
-      {/* Sidebar */}
-      <aside style={{ width: '260px', background: '#fff', borderRight: '1px solid var(--border-lt)', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '24px', borderBottom: '1px solid var(--border-lt)' }}>
-          <div style={{ fontWeight: '600', color: 'var(--brand-blue)' }}>System Administrator</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cutis Clinic Portal</div>
-        </div>
-        <nav style={{ padding: '24px 12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-          <button onClick={() => setActiveTab('dashboard')} style={{ padding: '12px 16px', textAlign: 'left', borderRadius: '8px', fontWeight: '600', background: activeTab === 'dashboard' ? 'var(--brand-blue)' : 'transparent', color: activeTab === 'dashboard' ? '#fff' : 'var(--text-mid)', transition: 'all 0.2s' }}>📊 Overview</button>
-          <button onClick={() => setActiveTab('appointments')} style={{ padding: '12px 16px', textAlign: 'left', borderRadius: '8px', fontWeight: '600', background: activeTab === 'appointments' ? 'var(--brand-blue)' : 'transparent', color: activeTab === 'appointments' ? '#fff' : 'var(--text-mid)', transition: 'all 0.2s', display: 'flex', justifyContent: 'space-between' }}>
-            <span>📅 Appointments</span>
-            {pendingCount > 0 && <span style={{ background: 'var(--brand-green)', color: '#1e293b', padding: '2px 8px', borderRadius: '100px', fontSize: '0.75rem' }}>{pendingCount}</span>}
-          </button>
-        </nav>
-        <div style={{ padding: '24px' }}>
-          <button onClick={handleLogout} className="btn btn-outline" style={{ width: '100%', color: 'var(--red)', borderColor: 'var(--red)' }}>Sign Out</button>
-        </div>
-      </aside>
+                                        <h1>Something <em>special</em><br>is coming.</h1>
+                                        <p>We are building the premier platform for Egyptian creative talent.</p>
 
-      {/* Main Content Area */}
-      <main style={{ flex: 1, padding: '40px' }}>
-        
-        {/* TAB: Overview */}
-        {activeTab === 'dashboard' && (
-          <div style={{ animation: 'fadeIn 0.3s ease' }}>
-            <h2 className="heading-md" style={{ color: 'var(--brand-blue)' }}>Clinic Overview</h2>
-            <div className="grid-3" style={{ marginBottom: '40px' }}>
-              <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-lt)', boxShadow: 'var(--shadow-sm)' }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--brand-blue)', lineHeight: '1' }}>{bookings.length}</div>
-                <div style={{ color: 'var(--text-mid)', fontWeight: '600', marginTop: '8px' }}>Total Bookings</div>
-              </div>
-              <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-lt)', boxShadow: 'var(--shadow-sm)' }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#f59e0b', lineHeight: '1' }}>{pendingCount}</div>
-                <div style={{ color: 'var(--text-mid)', fontWeight: '600', marginTop: '8px' }}>Pending Approvals</div>
-              </div>
-              <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-lt)', boxShadow: 'var(--shadow-sm)' }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--brand-green)', lineHeight: '1' }}>4</div>
-                <div style={{ color: 'var(--text-mid)', fontWeight: '600', marginTop: '8px' }}>Active Branches</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB: Appointments */}
-        {activeTab === 'appointments' && (
-          <div style={{ animation: 'fadeIn 0.3s ease' }}>
-            <h2 className="heading-md" style={{ color: 'var(--brand-blue)' }}>Appointments Registry</h2>
-            <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid var(--border-lt)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ background: 'var(--bg-main)', borderBottom: '2px solid var(--border-lt)', color: 'var(--text-mid)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    <th style={{ padding: '16px 24px' }}>Ref ID</th>
-                    <th style={{ padding: '16px 24px' }}>Patient Details</th>
-                    <th style={{ padding: '16px 24px' }}>Clinic & Dept</th>
-                    <th style={{ padding: '16px 24px' }}>Status</th>
-                    <th style={{ padding: '16px 24px', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings.map(b => (
-                    <tr key={b.id} style={{ borderBottom: '1px solid var(--border-lt)' }}>
-                      <td style={{ padding: '16px 24px', fontWeight: '600', color: 'var(--brand-blue)' }}>{b.id}</td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ fontWeight: '600', color: 'var(--text-dark)' }}>{b.name}</div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{b.phone}</div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ fontWeight: '500', color: 'var(--text-dark)' }}>{b.branch}</div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{b.dept}</div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <span style={{ 
-                          padding: '6px 12px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700',
-                          background: b.status === 'Pending' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(178, 210, 52, 0.2)',
-                          color: b.status === 'Pending' ? '#b45309' : '#3f6212'
-                        }}>
-                          {b.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                        {b.status === 'Pending' ? (
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                            <button onClick={() => updateStatus(b.id, 'Confirmed')} style={{ background: 'var(--brand-green)', color: '#1e293b', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600' }}>Accept</button>
-                            <button onClick={() => updateStatus(b.id, 'Rejected')} style={{ background: 'var(--bg-main)', color: 'var(--red)', border: '1px solid var(--red)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600' }}>Reject</button>
-                          </div>
-                        ) : (
-                          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Processed</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-      </main>
-    </div>
-  );
-}
+                                        <a href="https://docs.google.com/forms/d/e/1FAIpQLScm-OxEG4iucDm8NreNmvsSaXARH0KJE3Al8JZ8e53AlsmvEw/viewform?usp=header" target="_blank" rel="noopener noreferrer" class="cta-button">
+                                            Join the Waitlist
+                                        </a>
+                                </div>
+                            </body>
+                        </html>
