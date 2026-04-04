@@ -52,15 +52,52 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 600; color: var(--bran
 
 /* src/styles/global.css */
 
-/* --- Mobile Navigation Fix --- */
-@media (max-width: 860px) {
-  .nav-links-desktop { display: none !important; }
-  
-  /* Make the grid stack on mobile */
+/* ─── Navigation responsive ─────────────────────────────────────────── */
+.nav-desktop {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1.5px solid var(--border-lt);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+.nav-hamburger .bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text-dark);
+  border-radius: 2px;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+.nav-hamburger .bar-1.open { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger .bar-2.open { opacity: 0; }
+.nav-hamburger .bar-3.open { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 768px) {
+  .nav-desktop   { display: none !important; }
+  .nav-hamburger { display: flex !important; }
+
+  /* Stack grids */
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
-  
-  /* Adjust hero typography for mobile */
+
+  /* Scale typography */
   .heading-lg { font-size: 2.5rem !important; }
+  .heading-xl { font-size: 2.8rem !important; }
+
+  /* Tighter section padding */
+  .section { padding: 60px 0; }
 }
 /* src/styles/global.css */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
@@ -99,7 +136,8 @@ h1, h2, h3 { font-family: var(--font-serif); font-weight: 600; color: var(--bran
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-dark); line-height: 1.6; overflow-x: hidden; }
+html, body { overflow-x: hidden; max-width: 100%; }
+body { font-family: var(--font-sans); background: var(--bg-main); color: var(--text-dark); line-height: 1.6; }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 

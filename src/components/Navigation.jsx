@@ -101,46 +101,7 @@ export default function Navigation() {
         )}
       </nav>
 
-      <style>{`
-        /* Desktop: show links, hide burger */
-        .nav-desktop {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-        .nav-hamburger {
-          display: none;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: 5px;
-          width: 42px;
-          height: 42px;
-          border-radius: 8px;
-          background: transparent;
-          border: 1.5px solid var(--border-lt);
-          cursor: pointer;
-          flex-shrink: 0;
-          padding: 0;
-        }
-        .bar {
-          display: block;
-          width: 18px;
-          height: 2px;
-          background: var(--text-dark);
-          border-radius: 2px;
-          transition: transform 0.22s ease, opacity 0.22s ease;
-        }
-        .bar-1.open { transform: translateY(7px) rotate(45deg); }
-        .bar-2.open { opacity: 0; }
-        .bar-3.open { transform: translateY(-7px) rotate(-45deg); }
-
-        /* Mobile: hide links, show burger */
-        @media (max-width: 768px) {
-          .nav-desktop  { display: none; }
-          .nav-hamburger { display: flex; }
-        }
-      `}</style>
+      {/* Responsive nav styles live in global.css */}
     </>
   );
 }
