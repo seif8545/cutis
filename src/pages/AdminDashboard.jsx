@@ -390,37 +390,49 @@ function DoctorsSection({ appointments, setAppointments, availability, setAvaila
         </table>
       </Card>
 
-      {/* Upcoming appointments */}
-      <Card style={{ overflow:'hidden' }}>
-        <div style={{ padding:'0.9rem 1.25rem', borderBottom:`1px solid ${C.border}`, fontWeight:600, fontSize:'0.93rem' }}>
-          Upcoming Appointments <span style={{ color:C.muted, fontWeight:400, fontSize:'0.83rem' }}>({upcoming.length})</span>
-        </div>
-        {upcoming.length === 0 ? (
-          <div style={{ padding:'2rem', textAlign:'center', color:C.muted }}>No upcoming appointments.</div>
-        ) : (
-          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'0.87rem' }}>
-            <thead>
-              <tr style={{ background:C.light }}>
-                {['Date','Time','Patient','Department','Branch','Status'].map(h => (
-                  <th key={h} style={{ padding:'0.65rem 1rem', textAlign:'left', fontWeight:600, borderBottom:`1px solid ${C.border}` }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {upcoming.map((a,i) => (
-                <tr key={a.id} style={{ background: i%2===0 ? C.white : '#fafbff', borderBottom:`1px solid ${C.border}` }}>
-                  <td style={{ padding:'0.6rem 1rem' }}>{a.date}</td>
-                  <td style={{ padding:'0.6rem 1rem', fontWeight:700, color:C.accent }}>{a.time}</td>
-                  <td style={{ padding:'0.6rem 1rem', fontWeight:500 }}>{a.patientName}</td>
-                  <td style={{ padding:'0.6rem 1rem' }}>{a.department}</td>
-                  <td style={{ padding:'0.6rem 1rem' }}>{a.branch}</td>
-                  <td style={{ padding:'0.6rem 1rem' }}><Badge status={a.status} /></td>
+      {/* Upcoming appointments — hidden for legacy doctors */}
+      {doc.legacy ? (
+        <Card style={{ padding:'1.5rem', background:'#fffdf5', border:`1px solid #e8d988` }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', color:'#7a5c00', fontSize:'0.9rem' }}>
+            <span style={{ fontSize:'1.3rem' }}>🕯</span>
+            <div>
+              <div style={{ fontWeight:600, marginBottom:3 }}>No upcoming appointments</div>
+              <div style={{ fontSize:'0.83rem', opacity:0.8 }}>Prof. Dr. Abdel-Rahim's historical patient records are preserved in the Patients section under each patient's clinical history.</div>
+            </div>
+          </div>
+        </Card>
+      ) : (
+        <Card style={{ overflow:'hidden' }}>
+          <div style={{ padding:'0.9rem 1.25rem', borderBottom:`1px solid ${C.border}`, fontWeight:600, fontSize:'0.93rem' }}>
+            Upcoming Appointments <span style={{ color:C.muted, fontWeight:400, fontSize:'0.83rem' }}>({upcoming.length})</span>
+          </div>
+          {upcoming.length === 0 ? (
+            <div style={{ padding:'2rem', textAlign:'center', color:C.muted }}>No upcoming appointments.</div>
+          ) : (
+            <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'0.87rem' }}>
+              <thead>
+                <tr style={{ background:C.light }}>
+                  {['Date','Time','Patient','Department','Branch','Status'].map(h => (
+                    <th key={h} style={{ padding:'0.65rem 1rem', textAlign:'left', fontWeight:600, borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Card>
+              </thead>
+              <tbody>
+                {upcoming.map((a,i) => (
+                  <tr key={a.id} style={{ background: i%2===0 ? C.white : '#fafbff', borderBottom:`1px solid ${C.border}` }}>
+                    <td style={{ padding:'0.6rem 1rem' }}>{a.date}</td>
+                    <td style={{ padding:'0.6rem 1rem', fontWeight:700, color:C.accent }}>{a.time}</td>
+                    <td style={{ padding:'0.6rem 1rem', fontWeight:500 }}>{a.patientName}</td>
+                    <td style={{ padding:'0.6rem 1rem' }}>{a.department}</td>
+                    <td style={{ padding:'0.6rem 1rem' }}>{a.branch}</td>
+                    <td style={{ padding:'0.6rem 1rem' }}><Badge status={a.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Card>
+      )}
 
       {/* Clear Day modal */}
       {clearOpen && (
@@ -535,8 +547,8 @@ function AppointmentsSection({ appointments, setAppointments }) {
               <optgroup label="Active Physicians">
                 {activeDoctors.map(d=><option key={d.id} value={d.id}>{d.short}</option>)}
               </optgroup>
-              <optgroup label="━━ Legacy ━━">
-                {legacyDoctors.map(d=><option key={d.id} value={d.id}>† {d.short}</option>)}
+              <optgroup label="── In Memoriam ──">
+                {legacyDoctors.map(d=><option key={d.id} value={d.id}>{d.short} (Legacy)</option>)}
               </optgroup>
             </select>
           </div>
@@ -583,7 +595,7 @@ function AppointmentsSection({ appointments, setAppointments }) {
                 <td style={{ padding:'0.58rem 0.9rem', fontWeight:700, color:C.accent }}>{a.time}</td>
                 <td style={{ padding:'0.58rem 0.9rem', fontWeight:500 }}>{a.patientName}</td>
                 <td style={{ padding:'0.58rem 0.9rem', fontSize:'0.83rem' }}>
-                  {(() => { const doc = DOCTORS.find(d=>d.id===a.doctorId); return doc ? <span style={{ color: doc.legacy ? '#7a5c00' : C.muted }}>{doc.legacy ? '† ' : ''}{doc.short}</span> : '—'; })()}
+                  {(() => { const doc = DOCTORS.find(d=>d.id===a.doctorId); return doc ? <span style={{ color: doc.legacy ? '#7a5c00' : C.muted, fontStyle: doc.legacy ? 'italic' : 'normal' }}>{doc.short}</span> : '—'; })()}
                 </td>
                 <td style={{ padding:'0.58rem 0.9rem', fontSize:'0.83rem' }}>{a.department}</td>
                 <td style={{ padding:'0.58rem 0.9rem' }}><Badge status={a.status} /></td>
