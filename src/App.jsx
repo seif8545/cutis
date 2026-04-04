@@ -1,6 +1,12 @@
 // src/App.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
 import BookingPage from './pages/BookingPage';
@@ -14,6 +20,7 @@ export default function App() {
   return (
     <Router>
       <div className="app-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <ScrollToTop />
         <Navigation />
         <main style={{ flex: '1' }}>
           <Routes>
