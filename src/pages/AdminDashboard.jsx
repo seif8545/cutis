@@ -12,7 +12,7 @@ const C = {
 
 // ─── STATIC DATA ─────────────────────────────────────────────────────
 const DOCTORS = [
-  { id: 1, name: 'Prof. Dr. Abdel-Rahim Abdallah', short: 'Prof. Abdel-Rahim', role: 'Founder & Chief of Dermatology', initials: 'AA', branch: 'Sheikh Zayed' },
+  { id: 1, name: 'Prof. Dr. Abdel-Rahim Abdallah', short: 'Prof. Abdel-Rahim', role: 'Founder & Chief of Dermatology', initials: 'AA', branch: 'Sheikh Zayed', legacy: true },
   { id: 2, name: 'Prof. Dr. Marwa Abdallah',       short: 'Prof. Marwa',       role: 'Professor of Dermatology',       initials: 'MW', branch: 'Fifth Settlement' },
   { id: 3, name: 'A. Prof. Dr. Mahmoud Abdallah',  short: 'A. Prof. Mahmoud',  role: 'Associate Professor',            initials: 'MH', branch: 'Heliopolis' },
   { id: 4, name: 'Dr. Nehad Youssef',              short: 'Dr. Nehad',         role: 'Specialist Dermatologist',       initials: 'NY', branch: 'Mohandeseen' },
@@ -259,58 +259,94 @@ function DoctorsSection({ appointments, setAppointments, availability, setAvaila
   };
 
   // ── Doctor list ──
-  if (!selectedDoc) return (
-    <div>
-      <SectionTitle>Doctors</SectionTitle>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(255px,1fr))', gap:'1rem' }}>
-        {DOCTORS.map(d => {
-          const count = appointments.filter(a => a.doctorId===d.id && a.status!=='Cancelled').length;
-          return (
-            <Card key={d.id} style={{ padding:'1.25rem', cursor:'pointer', border:`1px solid ${C.border}`, transition:'transform 0.15s, box-shadow 0.15s' }}
-              onClick={() => { setSelectedDoc(d.id); setEditMode(false); }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 6px 18px rgba(33,50,108,0.13)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)';  e.currentTarget.style.boxShadow='0 1px 6px rgba(0,0,0,0.07)'; }}>
-              <div style={{ display:'flex', alignItems:'center', gap:'0.85rem', marginBottom:'0.75rem' }}>
-                <div style={{ width:50, height:50, borderRadius:'50%', background:C.primary, color:C.white, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'1.1rem', flexShrink:0 }}>{d.initials}</div>
-                <div>
-                  <div style={{ fontWeight:600, fontSize:'0.91rem', lineHeight:1.3 }}>{d.name}</div>
-                  <div style={{ color:C.muted, fontSize:'0.79rem', marginTop:2 }}>{d.role}</div>
-                </div>
-              </div>
-              <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.81rem', color:C.muted, borderTop:`1px solid ${C.border}`, paddingTop:'0.6rem' }}>
-                <span>{d.branch}</span>
-                <span style={{ color:C.primary, fontWeight:600 }}>{count} upcoming</span>
-              </div>
-            </Card>
-          );
-        })}
+  if (!selectedDoc) {
+    const active  = DOCTORS.filter(d => !d.legacy);
+    const legacy  = DOCTORS.filter(d =>  d.legacy);
+    const DoctorCard = ({ d }) => {
+      const count = appointments.filter(a => a.doctorId===d.id && a.status!=='Cancelled').length;
+      return (
+        <Card key={d.id} style={{ padding:'1.25rem', cursor:'pointer', border:`1px solid ${d.legacy ? '#c9a84c44' : C.border}`, transition:'transform 0.15s, box-shadow 0.15s', background: d.legacy ? '#fffdf5' : C.white }}
+          onClick={() => { setSelectedDoc(d.id); setEditMode(false); }}
+          onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow=`0 6px 18px ${d.legacy ? 'rgba(180,140,40,0.15)' : 'rgba(33,50,108,0.13)'}` ; }}
+          onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)';  e.currentTarget.style.boxShadow='0 1px 6px rgba(0,0,0,0.07)'; }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.85rem', marginBottom:'0.75rem' }}>
+            <div style={{ width:50, height:50, borderRadius:'50%', background: d.legacy ? '#8b7332' : C.primary, color:C.white, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'1.1rem', flexShrink:0, border: d.legacy ? '2px solid #c9a84c' : 'none' }}>{d.initials}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontWeight:600, fontSize:'0.91rem', lineHeight:1.3, color: d.legacy ? '#5a4a1a' : C.primary }}>{d.name}</div>
+              <div style={{ color:C.muted, fontSize:'0.79rem', marginTop:2 }}>{d.role}</div>
+            </div>
+            {d.legacy && <span style={{ fontSize:'0.7rem', fontWeight:700, background:'#f5e6b0', color:'#7a5c00', padding:'2px 8px', borderRadius:10, whiteSpace:'nowrap', border:'1px solid #c9a84c' }}>In Memoriam</span>}
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.81rem', color:C.muted, borderTop:`1px solid ${d.legacy ? '#e8d98888' : C.border}`, paddingTop:'0.6rem' }}>
+            <span>{d.branch}</span>
+            {d.legacy
+              ? <span style={{ color:'#7a5c00', fontWeight:600, fontStyle:'italic' }}>Historical records</span>
+              : <span style={{ color:C.primary, fontWeight:600 }}>{count} upcoming</span>}
+          </div>
+        </Card>
+      );
+    };
+    return (
+      <div>
+        <SectionTitle>Doctors</SectionTitle>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(255px,1fr))', gap:'1rem', marginBottom:'2rem' }}>
+          {active.map(d => <DoctorCard key={d.id} d={d} />)}
+        </div>
+        {legacy.length > 0 && (
+          <>
+            <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'1rem' }}>
+              <div style={{ flex:1, height:1, background:'#e8d988' }} />
+              <span style={{ fontSize:'0.8rem', fontWeight:700, color:'#7a5c00', letterSpacing:'0.08em', textTransform:'uppercase' }}>Legacy & Founding Physicians</span>
+              <div style={{ flex:1, height:1, background:'#e8d988' }} />
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(255px,1fr))', gap:'1rem' }}>
+              {legacy.map(d => <DoctorCard key={d.id} d={d} />)}
+            </div>
+          </>
+        )}
       </div>
-    </div>
-  );
+    );
+  }
 
   // ── Doctor detail ──
   return (
     <div>
       <button onClick={() => { setSelectedDoc(null); setEditMode(false); }} style={{ background:'none', border:'none', color:C.primary, cursor:'pointer', fontWeight:600, marginBottom:'1.25rem', fontSize:'0.88rem' }}>← Back to Doctors</button>
 
+      {/* Legacy memorial banner */}
+      {doc.legacy && (
+        <div style={{ background:'linear-gradient(135deg,#fffbe6,#fef3c7)', border:'1px solid #c9a84c', borderRadius:12, padding:'1rem 1.5rem', marginBottom:'1.25rem', display:'flex', alignItems:'center', gap:'1rem' }}>
+          <span style={{ fontSize:'1.6rem' }}>🕯</span>
+          <div>
+            <div style={{ fontWeight:700, color:'#7a5c00', fontSize:'0.95rem' }}>In Memoriam — Prof. Dr. Abdel-Rahim Abdallah</div>
+            <div style={{ color:'#92700a', fontSize:'0.83rem', marginTop:2 }}>Founder of Cutis Dermatology Clinics. His legacy lives on in every patient we serve. Records are preserved as a testament to his life's work.</div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <Card style={{ padding:'1.25rem 1.5rem', marginBottom:'1.25rem', display:'flex', alignItems:'center', gap:'1.25rem', flexWrap:'wrap' }}>
-        <div style={{ width:60, height:60, borderRadius:'50%', background:C.primary, color:C.white, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'1.3rem', flexShrink:0 }}>{doc.initials}</div>
+      <Card style={{ padding:'1.25rem 1.5rem', marginBottom:'1.25rem', display:'flex', alignItems:'center', gap:'1.25rem', flexWrap:'wrap', background: doc.legacy ? '#fffdf5' : C.white }}>
+        <div style={{ width:60, height:60, borderRadius:'50%', background: doc.legacy ? '#8b7332' : C.primary, color:C.white, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'1.3rem', flexShrink:0, border: doc.legacy ? '2px solid #c9a84c' : 'none' }}>{doc.initials}</div>
         <div style={{ flex:1 }}>
-          <h2 style={{ margin:'0 0 3px', fontSize:'1.1rem' }}>{doc.name}</h2>
+          <h2 style={{ margin:'0 0 3px', fontSize:'1.1rem', color: doc.legacy ? '#5a4a1a' : C.primary }}>{doc.name}</h2>
           <div style={{ color:C.muted, fontSize:'0.86rem' }}>{doc.role} &nbsp;·&nbsp; {doc.branch}</div>
         </div>
-        <div style={{ display:'flex', gap:'0.6rem', flexWrap:'wrap' }}>
-          <Btn variant={editMode ? 'primary' : 'outline'} onClick={() => setEditMode(v=>!v)}>
-            {editMode ? 'Done Editing' : 'Edit Availability'}
-          </Btn>
-          <Btn variant="accent" onClick={() => { setClearOpen(true); setPreview(null); }}>Clear a Day</Btn>
-        </div>
+        {!doc.legacy && (
+          <div style={{ display:'flex', gap:'0.6rem', flexWrap:'wrap' }}>
+            <Btn variant={editMode ? 'primary' : 'outline'} onClick={() => setEditMode(v=>!v)}>
+              {editMode ? 'Done Editing' : 'Edit Availability'}
+            </Btn>
+            <Btn variant="accent" onClick={() => { setClearOpen(true); setPreview(null); }}>Clear a Day</Btn>
+          </div>
+        )}
       </Card>
 
       {/* Availability grid */}
-      <Card style={{ padding:'1.25rem', marginBottom:'1.25rem', overflowX:'auto' }}>
-        <div style={{ fontWeight:600, fontSize:'0.93rem', marginBottom:'0.9rem' }}>Weekly Availability</div>
+      <Card style={{ padding:'1.25rem', marginBottom:'1.25rem', overflowX:'auto', background: doc.legacy ? '#fffdf5' : C.white }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'0.9rem' }}>
+          <span style={{ fontWeight:600, fontSize:'0.93rem' }}>{doc.legacy ? 'Historical Schedule' : 'Weekly Availability'}</span>
+          {doc.legacy && <span style={{ fontSize:'0.75rem', color:'#7a5c00', background:'#f5e6b0', padding:'2px 8px', borderRadius:8, border:'1px solid #c9a84c' }}>Read-only archive</span>}
+        </div>
         <table style={{ borderCollapse:'collapse', fontSize:'0.81rem', minWidth:480 }}>
           <thead>
             <tr>
@@ -457,24 +493,77 @@ function AppointmentsSection({ appointments, setAppointments }) {
     setLogModal(null); setLogText('');
   };
 
+  const STATUS_PILLS = ['All','Confirmed','Pending','Completed','Cancelled'];
+  const STATUS_PILL_COLOR = {
+    All:       { active: { bg: C.primary,    color: C.white  }, idle: { bg: C.light, color: C.muted } },
+    Confirmed: { active: { bg: C.successBg,  color: C.success}, idle: { bg: C.light, color: C.muted } },
+    Pending:   { active: { bg: C.warnBg,     color: C.warn   }, idle: { bg: C.light, color: C.muted } },
+    Completed: { active: { bg: C.infoBg,     color: C.info   }, idle: { bg: C.light, color: C.muted } },
+    Cancelled: { active: { bg: C.dangerBg,   color: C.danger }, idle: { bg: C.light, color: C.muted } },
+  };
+
+  const activeFilterCount = [filterStatus !== 'All', filterDoctor !== 'All', !!filterDate, !!search].filter(Boolean).length;
+  const clearAll = () => { setSearch(''); setFilterStatus('All'); setFilterDoctor('All'); setFilterDate(''); };
+
+  const activeDoctors = DOCTORS.filter(d => !d.legacy);
+  const legacyDoctors = DOCTORS.filter(d =>  d.legacy);
+
   return (
     <div>
       <SectionTitle>Appointments</SectionTitle>
-      <div style={{ display:'flex', gap:'0.65rem', flexWrap:'wrap', marginBottom:'1.1rem' }}>
-        <input placeholder="Search patient or department…" value={search} onChange={e=>setSearch(e.target.value)}
-          style={{ flex:'1 1 200px', padding:'0.5rem 0.85rem', borderRadius:8, border:`1.5px solid ${C.border}`, fontSize:'0.88rem', outline:'none' }} />
-        <input type="date" value={filterDate} onChange={e=>setFilterDate(e.target.value)}
-          style={{ padding:'0.5rem 0.85rem', borderRadius:8, border:`1.5px solid ${C.border}`, fontSize:'0.88rem', color:C.primary }} />
-        <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}
-          style={{ padding:'0.5rem 0.85rem', borderRadius:8, border:`1.5px solid ${C.border}`, fontSize:'0.88rem', background:C.white }}>
-          {['All','Confirmed','Pending','Completed','Cancelled'].map(s=><option key={s}>{s}</option>)}
-        </select>
-        <select value={filterDoctor} onChange={e=>setFilterDoctor(e.target.value)}
-          style={{ padding:'0.5rem 0.85rem', borderRadius:8, border:`1.5px solid ${C.border}`, fontSize:'0.88rem', background:C.white }}>
-          <option value="All">All Doctors</option>
-          {DOCTORS.map(d=><option key={d.id} value={d.id}>{d.short}</option>)}
-        </select>
-      </div>
+
+      {/* Filter panel */}
+      <Card style={{ padding:'1.1rem 1.25rem', marginBottom:'1.25rem' }}>
+        {/* Row 1: search + date + clear */}
+        <div style={{ display:'flex', gap:'0.65rem', alignItems:'center', marginBottom:'0.85rem', flexWrap:'wrap' }}>
+          <div style={{ position:'relative', flex:'1 1 220px' }}>
+            <span style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', color:C.muted, fontSize:'0.9rem', pointerEvents:'none' }}>🔍</span>
+            <input placeholder="Search patient or department…" value={search} onChange={e=>setSearch(e.target.value)}
+              style={{ width:'100%', padding:'0.5rem 0.85rem 0.5rem 2rem', borderRadius:8, border:`1.5px solid ${search ? C.primary : C.border}`, fontSize:'0.88rem', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }} />
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.4rem' }}>
+            <label style={{ fontSize:'0.78rem', color:C.muted, whiteSpace:'nowrap' }}>Date</label>
+            <input type="date" value={filterDate} onChange={e=>setFilterDate(e.target.value)}
+              style={{ padding:'0.5rem 0.75rem', borderRadius:8, border:`1.5px solid ${filterDate ? C.primary : C.border}`, fontSize:'0.88rem', color:C.primary, outline:'none' }} />
+            {filterDate && <button onClick={()=>setFilterDate('')} style={{ background:'none', border:'none', cursor:'pointer', color:C.muted, fontSize:'1rem', lineHeight:1, padding:'0 2px' }}>×</button>}
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.4rem' }}>
+            <label style={{ fontSize:'0.78rem', color:C.muted, whiteSpace:'nowrap' }}>Doctor</label>
+            <select value={filterDoctor} onChange={e=>setFilterDoctor(e.target.value)}
+              style={{ padding:'0.5rem 0.75rem', borderRadius:8, border:`1.5px solid ${filterDoctor!=='All' ? C.primary : C.border}`, fontSize:'0.88rem', background:C.white, outline:'none', color:C.primary, minWidth:150 }}>
+              <option value="All">All Doctors</option>
+              <optgroup label="Active Physicians">
+                {activeDoctors.map(d=><option key={d.id} value={d.id}>{d.short}</option>)}
+              </optgroup>
+              <optgroup label="━━ Legacy ━━">
+                {legacyDoctors.map(d=><option key={d.id} value={d.id}>† {d.short}</option>)}
+              </optgroup>
+            </select>
+          </div>
+          {activeFilterCount > 0 && (
+            <button onClick={clearAll} style={{ padding:'0.45rem 0.9rem', borderRadius:8, border:`1.5px solid ${C.border}`, background:'transparent', color:C.muted, cursor:'pointer', fontSize:'0.82rem', fontWeight:600, whiteSpace:'nowrap' }}>
+              Clear all ({activeFilterCount})
+            </button>
+          )}
+        </div>
+
+        {/* Row 2: status pills */}
+        <div style={{ display:'flex', gap:'0.4rem', alignItems:'center', flexWrap:'wrap' }}>
+          <span style={{ fontSize:'0.78rem', color:C.muted, marginRight:4 }}>Status:</span>
+          {STATUS_PILLS.map(s => {
+            const isActive = filterStatus === s;
+            const col = STATUS_PILL_COLOR[s][isActive ? 'active' : 'idle'];
+            return (
+              <button key={s} onClick={()=>setFilterStatus(s)}
+                style={{ padding:'4px 14px', borderRadius:20, border: isActive ? 'none' : `1.5px solid ${C.border}`, background:col.bg, color:col.color, cursor:'pointer', fontSize:'0.8rem', fontWeight: isActive ? 700 : 500, transition:'all 0.15s', fontFamily:'inherit' }}>
+                {s}
+                {s !== 'All' && <span style={{ marginLeft:5, fontWeight:400 }}>({appointments.filter(a=>a.status===s).length})</span>}
+              </button>
+            );
+          })}
+          <span style={{ marginLeft:'auto', fontSize:'0.82rem', color:C.muted }}>{filtered.length} result{filtered.length!==1?'s':''}</span>
+        </div>
+      </Card>
 
       <Card style={{ overflow:'hidden' }}>
         <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'0.86rem' }}>
@@ -493,7 +582,9 @@ function AppointmentsSection({ appointments, setAppointments }) {
                 <td style={{ padding:'0.58rem 0.9rem' }}>{a.date}</td>
                 <td style={{ padding:'0.58rem 0.9rem', fontWeight:700, color:C.accent }}>{a.time}</td>
                 <td style={{ padding:'0.58rem 0.9rem', fontWeight:500 }}>{a.patientName}</td>
-                <td style={{ padding:'0.58rem 0.9rem', color:C.muted, fontSize:'0.83rem' }}>{DOCTORS.find(d=>d.id===a.doctorId)?.short}</td>
+                <td style={{ padding:'0.58rem 0.9rem', fontSize:'0.83rem' }}>
+                  {(() => { const doc = DOCTORS.find(d=>d.id===a.doctorId); return doc ? <span style={{ color: doc.legacy ? '#7a5c00' : C.muted }}>{doc.legacy ? '† ' : ''}{doc.short}</span> : '—'; })()}
+                </td>
                 <td style={{ padding:'0.58rem 0.9rem', fontSize:'0.83rem' }}>{a.department}</td>
                 <td style={{ padding:'0.58rem 0.9rem' }}><Badge status={a.status} /></td>
                 <td style={{ padding:'0.58rem 0.9rem' }}>
@@ -860,45 +951,78 @@ const NAV_ITEMS = [
 
 export default function AdminDashboard() {
   const [activeTab,    setActiveTab]    = useState('overview');
+  const [collapsed,    setCollapsed]    = useState(false);
   const [appointments, setAppointments] = useState(INIT_APPOINTMENTS);
   const [availability, setAvailability] = useState(buildDefaultAvailability);
 
   const pendingCount = appointments.filter(a => a.status === 'Pending').length;
   const unreadCount  = INIT_EMAILS.filter(e => !e.read).length;
-
   const badge = { appointments: pendingCount, inbox: unreadCount };
 
+  const SW = collapsed ? 60 : 210; // sidebar width
+
   return (
-    <div style={{ display:'flex', minHeight:'100vh', background:C.bg, fontFamily:"'DM Sans', 'Segoe UI', sans-serif", color:C.primary }}>
-      {/* Sidebar */}
-      <aside style={{ width:210, background:C.primary, display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:100 }}>
-        <div style={{ padding:'1.4rem 1.25rem 1rem', borderBottom:'1px solid rgba(255,255,255,0.1)' }}>
-          <div style={{ color:'#fff', fontWeight:700, fontSize:'1.15rem', letterSpacing:'-0.3px' }}>Cutis</div>
-          <div style={{ color:'rgba(255,255,255,0.45)', fontSize:'0.73rem', marginTop:2 }}>Admin Dashboard</div>
+    // Outer wrapper — no fixed positioning, lives naturally inside App's <main>
+    <div style={{ display:'flex', alignItems:'flex-start', background:C.bg, fontFamily:"'DM Sans', 'Segoe UI', sans-serif", color:C.primary, minHeight:'100%' }}>
+
+      {/* Sidebar — sticky so it stays visible while scrolling, but doesn't overlap footer */}
+      <aside style={{ width:SW, flexShrink:0, background:C.primary, display:'flex', flexDirection:'column', position:'sticky', top:0, height:'100vh', overflowX:'hidden', overflowY:'auto', transition:'width 0.2s ease', zIndex:10 }}>
+
+        {/* Header: logo + collapse toggle */}
+        <div style={{ padding: collapsed ? '1.1rem 0' : '1.1rem 1rem 0.85rem', borderBottom:'1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent: collapsed ? 'center' : 'space-between', gap:'0.5rem', flexShrink:0 }}>
+          {!collapsed && (
+            <div>
+              <div style={{ color:'#fff', fontWeight:700, fontSize:'1.1rem', letterSpacing:'-0.3px', whiteSpace:'nowrap' }}>Cutis</div>
+              <div style={{ color:'rgba(255,255,255,0.4)', fontSize:'0.7rem', marginTop:1 }}>Admin Dashboard</div>
+            </div>
+          )}
+          <button onClick={()=>setCollapsed(v=>!v)}
+            style={{ background:'rgba(255,255,255,0.1)', border:'none', borderRadius:6, width:28, height:28, cursor:'pointer', color:'rgba(255,255,255,0.7)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.85rem', flexShrink:0, transition:'background 0.15s' }}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.18)'}
+            onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,0.1)'}>
+            {collapsed ? '»' : '«'}
+          </button>
         </div>
-        <nav style={{ flex:1, padding:'0.9rem 0.7rem' }}>
+
+        {/* Back to portal */}
+        <a href="/" style={{ display:'flex', alignItems:'center', gap:'0.6rem', padding: collapsed ? '0.65rem 0' : '0.65rem 1rem', margin: collapsed ? '0.65rem 0.5rem 0' : '0.65rem 0.75rem 0', borderRadius:8, background:'rgba(255,144,68,0.15)', border:'1px solid rgba(255,144,68,0.3)', color:'#ffb87a', textDecoration:'none', fontSize:'0.82rem', fontWeight:600, justifyContent: collapsed ? 'center' : 'flex-start', transition:'background 0.15s', flexShrink:0 }}
+          onMouseEnter={e=>e.currentTarget.style.background='rgba(255,144,68,0.25)'}
+          onMouseLeave={e=>e.currentTarget.style.background='rgba(255,144,68,0.15)'}>
+          <span style={{ fontSize:'0.9rem', flexShrink:0 }}>←</span>
+          {!collapsed && <span style={{ whiteSpace:'nowrap' }}>Client Portal</span>}
+        </a>
+
+        {/* Nav items */}
+        <nav style={{ flex:1, padding: collapsed ? '0.75rem 0.4rem' : '0.75rem 0.6rem', overflowY:'auto' }}>
           {NAV_ITEMS.map(item => {
             const b = badge[item.id] || 0;
             const active = activeTab === item.id;
             return (
               <button key={item.id} onClick={()=>setActiveTab(item.id)}
-                style={{ width:'100%', display:'flex', alignItems:'center', gap:'0.7rem', padding:'0.6rem 0.85rem', borderRadius:8, border:'none', background: active ? 'rgba(255,255,255,0.13)' : 'transparent', color: active ? '#fff' : 'rgba(255,255,255,0.58)', cursor:'pointer', fontSize:'0.88rem', fontWeight: active ? 600 : 400, marginBottom:2, textAlign:'left', transition:'background 0.13s', fontFamily:'inherit' }}
+                title={collapsed ? item.label : undefined}
+                style={{ width:'100%', display:'flex', alignItems:'center', gap: collapsed ? 0 : '0.65rem', justifyContent: collapsed ? 'center' : 'flex-start', padding: collapsed ? '0.65rem 0' : '0.58rem 0.8rem', borderRadius:8, border:'none', background: active ? 'rgba(255,255,255,0.13)' : 'transparent', color: active ? '#fff' : 'rgba(255,255,255,0.55)', cursor:'pointer', fontSize:'0.87rem', fontWeight: active ? 600 : 400, marginBottom:2, textAlign:'left', transition:'background 0.13s', fontFamily:'inherit', position:'relative' }}
                 onMouseEnter={e=>{ if(!active) e.currentTarget.style.background='rgba(255,255,255,0.07)'; }}
                 onMouseLeave={e=>{ if(!active) e.currentTarget.style.background='transparent'; }}>
-                <span style={{ fontSize:'0.95rem', width:18, textAlign:'center', opacity:0.85 }}>{item.icon}</span>
-                <span>{item.label}</span>
-                {b>0 && <span style={{ marginLeft:'auto', background:C.accent, color:'#fff', borderRadius:12, padding:'1px 7px', fontSize:'0.71rem', fontWeight:700 }}>{b}</span>}
+                <span style={{ fontSize:'1rem', width:18, textAlign:'center', flexShrink:0 }}>{item.icon}</span>
+                {!collapsed && <span style={{ whiteSpace:'nowrap' }}>{item.label}</span>}
+                {b > 0 && !collapsed && <span style={{ marginLeft:'auto', background:C.accent, color:'#fff', borderRadius:12, padding:'1px 7px', fontSize:'0.7rem', fontWeight:700 }}>{b}</span>}
+                {b > 0 && collapsed && <span style={{ position:'absolute', top:4, right:4, width:8, height:8, borderRadius:'50%', background:C.accent }} />}
               </button>
             );
           })}
         </nav>
-        <div style={{ padding:'1rem 1.25rem', borderTop:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.35)', fontSize:'0.72rem' }}>
-          Cutis Dermatology Clinics
-        </div>
+
+        {/* Footer */}
+        {!collapsed && (
+          <div style={{ padding:'0.85rem 1rem', borderTop:'1px solid rgba(255,255,255,0.08)', color:'rgba(255,255,255,0.28)', fontSize:'0.7rem', flexShrink:0 }}>
+            Cutis Dermatology Clinics
+          </div>
+        )}
       </aside>
 
       {/* Main content */}
-      <main style={{ marginLeft:210, flex:1, padding:'1.75rem', minWidth:0 }}>
+      <main style={{ flex:1, padding:'1.75rem', minWidth:0, minHeight:'100vh' }}>
         {activeTab==='overview'     && <OverviewSection     appointments={appointments} patients={INIT_PATIENTS} />}
         {activeTab==='doctors'      && <DoctorsSection      appointments={appointments} setAppointments={setAppointments} availability={availability} setAvailability={setAvailability} />}
         {activeTab==='appointments' && <AppointmentsSection appointments={appointments} setAppointments={setAppointments} />}
