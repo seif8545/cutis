@@ -142,15 +142,20 @@ export default function DoctorsPage() {
 
           {/* Main panel */}
           <main style={{ flex: '2 1 600px' }}>
-            {/* Remembrance note for legacy */}
+            {/* Memorial banner for legacy */}
             {activeDoctor.legacy && (
               <div style={{
-                borderLeft: '3px solid #c9a84c',
-                paddingLeft: '16px', marginBottom: '24px',
+                display: 'flex', alignItems: 'center', gap: '16px',
+                background: 'linear-gradient(135deg,#fffbe6,#fef3c7)',
+                border: '1px solid #c9a84c', borderRadius: '16px',
+                padding: '18px 24px', marginBottom: '20px',
               }}>
-                <p style={{ color: '#92700a', fontSize: '0.88rem', fontStyle: 'italic', lineHeight: 1.65, margin: 0 }}>
-                  Remembering Prof. Dr. Abdel-Rahim Abdallah — founder of Cutis and the Guru of Dermatology in Egypt and the Middle East. His life's work continues to guide every patient we serve.
-                </p>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#7a5c00', fontSize: '0.95rem' }}>Remembering</div>
+                  <div style={{ color: '#92700a', fontSize: '0.84rem', marginTop: 3, lineHeight: 1.5 }}>
+                    Prof. Dr. Abdel-Rahim Abdallah, the founder of Cutis, passed away leaving behind a legacy that continues to guide every patient we serve. His life's work is preserved here as a permanent tribute.
+                  </div>
+                </div>
               </div>
             )}
 
