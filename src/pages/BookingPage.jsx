@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import * as PatientStore from '../utils/patientStore';
 import '../styles/global.css';
 
 const BRANCHES = ["Sheikh Zayed", "Fifth Settlement", "Heliopolis", "Mohandeseen"];
@@ -75,6 +77,8 @@ export default function BookingPage() {
 
   const availableDates = useMemo(() => getAvailableDates(), []);
 
+  const [bookingRef, setBookingRef] = useState('');
+
   const updateField = (name, value) => setFormData(prev => ({ ...prev, [name]: value }));
 
   const nextStep = () => setStep(prev => prev + 1);
@@ -82,6 +86,41 @@ export default function BookingPage() {
 
   const submitBooking = (e) => {
     e.preventDefault();
+
+    // Generate a booking reference
+    const ref = PatientStore.genRef();
+    setBookingRef(ref);
+
+    // Resolve doctor display name
+    const doctorEntry = DOCTORS.find(d => d.id === formData.doctor);
+    const doctorName  = doctorEntry && doctorEntry.id !== 'Any'
+      ? doctorEntry.name
+      : 'Any Available Specialist';
+
+    // Save / merge the patient profile
+    PatientStore.save({
+      name:        formData.fullName,
+      email:       formData.email,
+      phone:       formData.phone,
+      allergies:   formData.allergies,
+      medications: formData.medications,
+    });
+
+    // Attach the appointment to the profile
+    PatientStore.upsertAppointment(formData.email, {
+      bookingRef:      ref,
+      date:            formData.date,
+      time:            formData.time,
+      department:      formData.department,
+      branch:          formData.branch,
+      doctor:          doctorName,
+      status:          'Pending',
+      chiefComplaint:  formData.chiefComplaint,
+    });
+
+    // Sign the patient into their profile session
+    PatientStore.setSession(formData.email);
+
     setStep(5);
   };
 
@@ -380,25 +419,64 @@ export default function BookingPage() {
 
           {/* ── STEP 5: SUCCESS ── */}
           {step === 5 && (
-            <div style={{ textAlign: 'center', animation: 'fadeIn 0.6s ease', padding: '40px 0' }}>
-              <div style={{ width: '80px', height: '80px', background: 'var(--brand-green)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: '2rem', color: '#0f172a' }}>✓</div>
-              <h2 className="heading-md">Booking Confirmed!</h2>
-              <p style={{ color: 'var(--text-mid)', marginBottom: '24px', fontSize: '1.05rem', lineHeight: '1.6' }}>
-                Thank you, <strong>{formData.fullName}</strong>. Your appointment has been received.
-              </p>
-              <div style={{ display: 'inline-block', textAlign: 'left', background: 'var(--brand-blue-lt, #eef2ff)', border: '1.5px solid var(--brand-blue)', borderRadius: '12px', padding: '20px 28px', marginBottom: '24px' }}>
-                <div style={{ display: 'grid', gap: '9px', fontSize: '0.92rem' }}>
-                  <div><span style={{ color: 'var(--text-muted)', marginRight: 6 }}>Clinic:</span><strong>{formData.department}</strong></div>
-                  <div><span style={{ color: 'var(--text-muted)', marginRight: 6 }}>Branch:</span><strong>{formData.branch}</strong></div>
-                  <div><span style={{ color: 'var(--text-muted)', marginRight: 6 }}>Date:</span><strong>{formatDate(formData.date)}</strong></div>
-                  <div><span style={{ color: 'var(--text-muted)', marginRight: 6 }}>Time:</span><strong>{formData.time}</strong></div>
-                  {formData.doctor && <div><span style={{ color: 'var(--text-muted)', marginRight: 6 }}>Doctor:</span><strong>{formData.doctor}</strong></div>}
+            <div style={{ animation: 'fadeIn 0.6s ease' }}>
+              {/* Check mark */}
+              <div style={{ textAlign: 'center', marginBottom: 28 }}>
+                <div style={{ width: 76, height: 76, background: 'var(--brand-green)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '2.1rem', color: '#0f172a' }}>✓</div>
+                <h2 className="heading-md" style={{ marginBottom: 8 }}>Booking Received!</h2>
+                <p style={{ color: 'var(--text-mid)', fontSize: '1rem', lineHeight: '1.6' }}>
+                  Thank you, <strong>{formData.fullName}</strong>. Our team at <strong>{formData.branch}</strong> will confirm your appointment shortly.
+                </p>
+              </div>
+
+              {/* Appointment summary */}
+              <div style={{ background: '#eef6ff', border: '1.5px solid var(--brand-blue)', borderRadius: 12, padding: '18px 22px', marginBottom: 20 }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--brand-blue)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Your Appointment</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: '0.88rem' }}>
+                  {[
+                    ['Clinic',  formData.department],
+                    ['Branch',  formData.branch],
+                    ['Date',    formatDate(formData.date)],
+                    ['Time',    formData.time],
+                    ...(formData.doctor ? [['Doctor', formData.doctor]] : []),
+                    ['Ref',     bookingRef],
+                  ].map(([k, v]) => (
+                    <div key={k}>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>{k}: </span>
+                      <strong style={{ color: k === 'Ref' ? 'var(--brand-blue)' : 'var(--text-dark)', fontFamily: k === 'Ref' ? 'monospace' : 'inherit' }}>{v}</strong>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '32px' }}>
-                Our coordinators at the <strong>{formData.branch}</strong> branch will call you to confirm the appointment.
-              </p>
-              <button className="btn btn-primary" onClick={() => window.location.href='/'}>Back to Home</button>
+
+              {/* Profile created banner */}
+              <div style={{ background: '#e6f4ea', border: '1px solid #a3d9ac', borderRadius: 12, padding: '16px 20px', marginBottom: 24, display: 'flex', gap: 14, alignItems: 'center' }}>
+                <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>👤</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, color: '#2d7a3a', fontSize: '0.9rem', marginBottom: 2 }}>Your patient profile has been created</div>
+                  <div style={{ color: '#3a7a42', fontSize: '0.83rem', lineHeight: 1.5 }}>
+                    Your details and this appointment have been saved. Sign in anytime to view or update your profile.
+                  </div>
+                </div>
+              </div>
+
+              {/* CTAs */}
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <Link
+                  to={`/profile?email=${encodeURIComponent(formData.email)}`}
+                  className="btn btn-primary"
+                  style={{ flex: 1, minWidth: 180, textAlign: 'center' }}
+                >
+                  View My Profile →
+                </Link>
+                <Link
+                  to="/"
+                  className="btn btn-outline"
+                  style={{ flex: 1, minWidth: 140, textAlign: 'center' }}
+                >
+                  Back to Home
+                </Link>
+              </div>
             </div>
           )}
         </div>

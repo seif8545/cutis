@@ -46,6 +46,7 @@ export default function Navigation() {
                 <a href="#locations" style={linkStyle}>Branches</a>
               </>
             )}
+            <Link to="/profile" style={linkStyle}>My Profile</Link>
             <Link to="/book"  className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>Book Consultation</Link>
             <Link to="/admin" className="btn btn-outline"  style={{ padding: '8px 20px', fontSize: '0.85rem', borderWidth: '1px' }}>Staff Portal</Link>
           </div>
@@ -94,8 +95,8 @@ export default function Navigation() {
               </>
             )}
             <div style={{ display: 'flex', gap: '10px', marginTop: '18px' }}>
-              <Link to="/book"  onClick={close} className="btn btn-primary" style={{ flex: 1, textAlign: 'center', padding: '12px 8px', fontSize: '0.88rem' }}>Book Consultation</Link>
-              <Link to="/admin" onClick={close} className="btn btn-outline"  style={{ flex: 1, textAlign: 'center', padding: '12px 8px', fontSize: '0.88rem', borderWidth: '1px' }}>Staff Portal</Link>
+              <Link to="/book"    onClick={close} className="btn btn-primary" style={{ flex: 1, textAlign: 'center', padding: '12px 8px', fontSize: '0.88rem' }}>Book Consultation</Link>
+              <Link to="/profile" onClick={close} className="btn btn-outline" style={{ flex: 1, textAlign: 'center', padding: '12px 8px', fontSize: '0.88rem', borderWidth: '1px' }}>My Profile</Link>
             </div>
           </div>
         )}
