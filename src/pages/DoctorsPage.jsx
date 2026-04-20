@@ -79,7 +79,7 @@ export default function DoctorsPage() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
           <span style={{ fontSize: '1.05rem' }}>{doc.name}</span>
-          {isLegacy && <span style={{ fontSize: '0.68rem', fontWeight: 700, background: '#f5e6b0', color: '#7a5c00', padding: '1px 7px', borderRadius: 10, border: '1px solid #c9a84c', whiteSpace: 'nowrap' }}>In Memoriam</span>}
+          {isLegacy && <span style={{ fontSize: '0.68rem', fontWeight: 700, background: '#f5e6b0', color: '#7a5c00', padding: '1px 7px', borderRadius: 10, border: '1px solid #c9a84c', whiteSpace: 'nowrap' }}>Remembering</span>}
         </div>
         <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>{doc.specialty}</div>
       </button>
@@ -142,21 +142,15 @@ export default function DoctorsPage() {
 
           {/* Main panel */}
           <main style={{ flex: '2 1 600px' }}>
-            {/* Memorial banner for legacy */}
+            {/* Remembrance note for legacy */}
             {activeDoctor.legacy && (
               <div style={{
-                display: 'flex', alignItems: 'center', gap: '16px',
-                background: 'linear-gradient(135deg,#fffbe6,#fef3c7)',
-                border: '1px solid #c9a84c', borderRadius: '16px',
-                padding: '18px 24px', marginBottom: '20px',
+                borderLeft: '3px solid #c9a84c',
+                paddingLeft: '16px', marginBottom: '24px',
               }}>
-                <span style={{ fontSize: '1.8rem', flexShrink: 0 }}>🕯</span>
-                <div>
-                  <div style={{ fontWeight: 700, color: '#7a5c00', fontSize: '0.95rem' }}>In Memoriam</div>
-                  <div style={{ color: '#92700a', fontSize: '0.84rem', marginTop: 3, lineHeight: 1.5 }}>
-                    Prof. Dr. Abdel-Rahim Abdallah, the founder of Cutis, passed away leaving behind a legacy that continues to guide every patient we serve. His life's work is preserved here as a permanent tribute.
-                  </div>
-                </div>
+                <p style={{ color: '#92700a', fontSize: '0.88rem', fontStyle: 'italic', lineHeight: 1.65, margin: 0 }}>
+                  Remembering Prof. Dr. Abdel-Rahim Abdallah — founder of Cutis and the Guru of Dermatology in Egypt and the Middle East. His life's work continues to guide every patient we serve.
+                </p>
               </div>
             )}
 

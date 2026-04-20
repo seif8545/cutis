@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import * as PatientStore from '../utils/patientStore';
 import '../styles/global.css';
@@ -78,6 +78,21 @@ export default function BookingPage() {
   const availableDates = useMemo(() => getAvailableDates(), []);
 
   const [bookingRef, setBookingRef] = useState('');
+  const [claimedOffer, setClaimedOffer] = useState(null);
+
+  // Pick up any offer pre-selection written by the home page
+  useEffect(() => {
+    const raw = localStorage.getItem('cutis_pending_offer');
+    if (!raw) return;
+    try {
+      const offer = JSON.parse(raw);
+      if (offer.department) {
+        setFormData(prev => ({ ...prev, department: offer.department }));
+        setClaimedOffer(offer);
+      }
+    } catch (_) {}
+    localStorage.removeItem('cutis_pending_offer');
+  }, []);
 
   const updateField = (name, value) => setFormData(prev => ({ ...prev, [name]: value }));
 
@@ -173,6 +188,30 @@ export default function BookingPage() {
             <div style={{ height: '6px', background: 'var(--border-lt)', borderRadius: '100px', overflow: 'hidden' }}>
               <div style={{ width: `${(step / 4) * 100}%`, height: '100%', background: 'var(--brand-green)', transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }} />
             </div>
+          </div>
+        )}
+
+        {/* Offer banner */}
+        {claimedOffer && step < 5 && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 14,
+            background: '#fffbe6', border: '1.5px solid #c9a84c',
+            borderRadius: 14, padding: '14px 20px', marginBottom: 20,
+          }}>
+            <span style={{ fontSize: '1.3rem', flexShrink: 0 }}>🎁</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, color: '#7a5c00', fontSize: '0.88rem', marginBottom: 2 }}>
+                Offer applied: {claimedOffer.offerTitle}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#92700a' }}>
+                We've pre-selected <strong>{claimedOffer.department}</strong> for you. Mention this offer at your appointment.
+              </div>
+            </div>
+            <button
+              onClick={() => setClaimedOffer(null)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c9a84c', fontSize: '1.1rem', flexShrink: 0, padding: 4 }}
+              aria-label="Dismiss"
+            >✕</button>
           </div>
         )}
 
