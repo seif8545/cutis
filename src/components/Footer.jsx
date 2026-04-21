@@ -75,8 +75,10 @@ export default function Footer() {
           <p style={{ fontSize: '0.75rem', color: '#64748b' }}>
             © {new Date().getFullYear()} Cutis Dermatology & Laser Clinic. All rights reserved. Registered with the Egyptian Medical Syndicate.
           </p>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <Link to="/admin" style={{ fontSize: '0.75rem', color: '#64748b' }}>Staff Portal</Link>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <Link to="/admin" style={{ fontSize: '0.75rem', color: '#64748b' }}>Doctors Portal</Link>
+            <span style={{ color: '#334155' }}>|</span>
+            <Link to="/receptionist" style={{ fontSize: '0.75rem', color: '#64748b' }}>Receptionist Portal</Link>
             <span style={{ color: '#334155' }}>|</span>
             <a href="#" style={{ fontSize: '0.75rem', color: '#64748b' }}>Privacy Policy</a>
           </div>

@@ -1,24 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import * as AppointmentStore from '../utils/appointmentStore';
 
 // ── THEME ────────────────────────────────────────────────────
 const C = {
   primary: '#21326c', accent: '#ff9044', light: '#f0f2fa', bg: '#f5f6fa',
   white: '#ffffff', muted: '#8892a4', border: '#e2e6f0',
-  success: '#2d7a3a', successBg: '#e6f4ea',
-  warn: '#b07d00',   warnBg: '#fff8e1',
-  danger: '#c0392b', dangerBg: '#fdecea',
-  info: '#1a56db',   infoBg: '#e8f0fe',
+  success: '#2d7a3a', warn: '#b07d00', danger: '#c0392b', info: '#1a56db',
+  wa: '#25d366',
 };
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
-const BRANCHES = ['Sheikh Zayed', 'Fifth Settlement', 'Heliopolis', 'Mohandeseen'];
+const BRANCHES = ['Fifth Settlement', 'Mohandeseen', 'Heliopolis', 'Sheikh Zayed'];
 
 const DOCTORS = [
-  { id: 2, name: 'Prof. Dr. Marwa Abdallah',      short: 'Prof. Marwa',      role: 'Professor of Dermatology',    initials: 'MW', color: '#2d7a3a' },
-  { id: 3, name: 'A. Prof. Dr. Mahmoud Abdallah', short: 'A. Prof. Mahmoud', role: 'Associate Professor',         initials: 'MH', color: '#21326c' },
-  { id: 4, name: 'Dr. Nehad Youssef',             short: 'Dr. Nehad',        role: 'Specialist Dermatologist',    initials: 'NY', color: '#475569' },
-  { id: 5, name: 'Dr. Azza El-Azhary',            short: 'Dr. Azza',         role: 'Head of Dermatology',         initials: 'AZ', color: '#0891b2' },
+  { id: 2, short: 'Prof. Marwa',      color: '#2d7a3a', initials: 'مر' },
+  { id: 3, short: 'A. Prof. Mahmoud', color: '#21326c', initials: 'مح' },
+  { id: 4, short: 'Dr. Nehad',        color: '#475569', initials: 'نه' },
+  { id: 5, short: 'Dr. Azza',         color: '#0891b2', initials: 'عز' },
 ];
 
 const TIME_SLOTS = [
@@ -26,74 +25,16 @@ const TIME_SLOTS = [
   '12:00','14:00','14:30','15:00','15:30','16:00','16:30','17:00',
 ];
 
-// Hourly rows for the schedule grid: 8 AM → 6 PM (30-min steps)
+// Schedule grid rows: 8 AM – 6 PM in 30-min steps
 const SCHEDULE_SLOTS = Array.from({ length: 20 }, (_, i) => {
-  const totalMins = 8 * 60 + i * 30;
-  const h = String(Math.floor(totalMins / 60)).padStart(2, '0');
-  const m = String(totalMins % 60).padStart(2, '0');
-  return `${h}:${m}`;
-}); // ['08:00','08:30','09:00',...,'17:30']
+  const m = 8 * 60 + i * 30;
+  return `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`;
+});
 
-function slotHour(slot) { return parseInt(slot.split(':')[0], 10); }
-
-const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-// ── APPOINTMENTS (includes today 2026-04-14 + future dates) ──
-const INIT_APPOINTMENTS = [
-  // Today: 2026-04-14
-  { id:10, patientId:1, patientName:'Sara Ahmed',     doctorId:2, date:'2026-04-14', time:'09:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Pending',   notes:'Follow-up for melasma treatment' },
-  { id:11, patientId:5, patientName:'Layla Mostafa',  doctorId:2, date:'2026-04-14', time:'10:30', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Confirmed', notes:'' },
-  { id:12, patientId:2, patientName:'Karim Hassan',   doctorId:4, date:'2026-04-14', time:'10:00', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Confirmed', notes:'Tattoo removal — session 2' },
-  { id:13, patientId:7, patientName:'Nadia Ibrahim',  doctorId:4, date:'2026-04-14', time:'11:30', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Pending',   notes:'' },
-  { id:14, patientId:3, patientName:'Mona Samir',     doctorId:3, date:'2026-04-14', time:'09:30', department:'Clinical Dermatology',  branch:'Heliopolis',       status:'Pending',   notes:'Psoriasis follow-up' },
-  { id:15, patientId:6, patientName:'Omar Khalil',    doctorId:3, date:'2026-04-14', time:'11:00', department:'Cosmetic Dermatology',  branch:'Heliopolis',       status:'Confirmed', notes:'' },
-  { id:16, patientId:4, patientName:'Ahmed Fouad',    doctorId:5, date:'2026-04-14', time:'14:00', department:'Clinical Dermatology',  branch:'Sheikh Zayed',     status:'Pending',   notes:'' },
-  { id:17, patientId:8, patientName:'Hassan Ramadan', doctorId:5, date:'2026-04-14', time:'15:30', department:'Advanced Laser Center', branch:'Sheikh Zayed',     status:'Confirmed', notes:'' },
-  // Apr 15
-  { id:18, patientId:1, patientName:'Sara Ahmed',     doctorId:2, date:'2026-04-15', time:'10:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Pending',   notes:'' },
-  { id:19, patientId:6, patientName:'Omar Khalil',    doctorId:3, date:'2026-04-15', time:'09:00', department:'Cosmetic Dermatology',  branch:'Heliopolis',       status:'Confirmed', notes:'' },
-  { id:20, patientId:7, patientName:'Nadia Ibrahim',  doctorId:4, date:'2026-04-15', time:'11:00', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Pending',   notes:'' },
-  { id:21, patientId:8, patientName:'Hassan Ramadan', doctorId:5, date:'2026-04-15', time:'14:30', department:'Clinical Dermatology',  branch:'Sheikh Zayed',     status:'Confirmed', notes:'' },
-  // Apr 16
-  { id:22, patientId:3, patientName:'Mona Samir',     doctorId:2, date:'2026-04-16', time:'09:30', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Confirmed', notes:'' },
-  { id:23, patientId:4, patientName:'Ahmed Fouad',    doctorId:3, date:'2026-04-16', time:'10:00', department:'Clinical Dermatology',  branch:'Heliopolis',       status:'Pending',   notes:'' },
-  { id:24, patientId:2, patientName:'Karim Hassan',   doctorId:4, date:'2026-04-16', time:'14:00', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Confirmed', notes:'' },
-  // Apr 17
-  { id:25, patientId:5, patientName:'Layla Mostafa',  doctorId:2, date:'2026-04-17', time:'11:00', department:'Cosmetic Dermatology',  branch:'Fifth Settlement', status:'Pending',   notes:'' },
-  { id:26, patientId:1, patientName:'Sara Ahmed',     doctorId:5, date:'2026-04-17', time:'14:00', department:'Clinical Dermatology',  branch:'Sheikh Zayed',     status:'Confirmed', notes:'' },
-  // Apr 20
-  { id:27, patientId:2, patientName:'Karim Hassan',   doctorId:4, date:'2026-04-20', time:'10:00', department:'Advanced Laser Center', branch:'Mohandeseen',      status:'Pending',   notes:'' },
-  { id:28, patientId:7, patientName:'Nadia Ibrahim',  doctorId:3, date:'2026-04-20', time:'11:30', department:'Cosmetic Dermatology',  branch:'Heliopolis',       status:'Confirmed', notes:'' },
-];
-
-const INIT_PATIENTS = [
-  { id:1, name:'Sara Ahmed',     dob:'1990-03-15', phone:'+20 111 234 5678', email:'sara.ahmed@email.com',  bloodType:'A+',  allergies:'Penicillin',
-    history:[{ date:'2026-02-10', doctor:'Prof. Dr. Marwa Abdallah', diagnosis:'Melasma', treatment:'Hydroquinone 4%, SPF 50' }] },
-  { id:2, name:'Karim Hassan',   dob:'1985-07-22', phone:'+20 100 987 6543', email:'karim.h@email.com',     bloodType:'O+',  allergies:'None',
-    history:[{ date:'2026-01-18', doctor:'Dr. Nehad Youssef', diagnosis:'Tattoo removal', treatment:'Q-switched Nd:YAG laser — 3 sessions' }] },
-  { id:3, name:'Mona Samir',     dob:'1978-12-01', phone:'+20 122 555 9988', email:'mona.samir@email.com',  bloodType:'B-',  allergies:'Sulfa drugs',
-    history:[{ date:'2026-03-02', doctor:'Prof. Dr. Abdel-Rahim Abdallah', diagnosis:'Psoriasis (plaque type)', treatment:'Topical corticosteroids, coal tar shampoo' }] },
-  { id:4, name:'Ahmed Fouad',    dob:'1995-04-08', phone:'+20 105 443 2211', email:'ahmed.f@email.com',     bloodType:'AB+', allergies:'Latex',   history:[] },
-  { id:5, name:'Layla Mostafa',  dob:'2000-08-19', phone:'+20 128 776 4433', email:'layla.m@email.com',     bloodType:'A-',  allergies:'None',
-    history:[{ date:'2026-02-25', doctor:'Dr. Azza El-Azhary', diagnosis:'Laser hair removal — legs', treatment:'Diode laser 810nm — session 2/6' }] },
-  { id:6, name:'Omar Khalil',    dob:'1982-06-30', phone:'+20 110 321 8765', email:'omar.k@email.com',      bloodType:'O-',  allergies:'Aspirin', history:[] },
-  { id:7, name:'Nadia Ibrahim',  dob:'1993-01-25', phone:'+20 101 654 3210', email:'nadia.i@email.com',     bloodType:'B+',  allergies:'None',
-    history:[{ date:'2026-03-15', doctor:'Dr. Nehad Youssef', diagnosis:'Acne scarring', treatment:'Fractional CO2 laser resurfacing' }] },
-  { id:8, name:'Hassan Ramadan', dob:'1970-09-12', phone:'+20 115 999 1122', email:'hassan.r@email.com',    bloodType:'A+',  allergies:'None',   history:[] },
-];
-
-// ── HELPERS ──────────────────────────────────────────────────
-function fmtDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return `${DAY_NAMES[d.getDay()]}, ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
-}
-
-function addDays(dateStr, n) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
-}
+const DAY_NAMES_EN   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTH_NAMES_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAY_NAMES_AR   = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const MONTH_NAMES_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
 const STATUS_BADGE = {
   Confirmed: { bg: '#e6f4ea', color: '#2d7a3a' },
@@ -102,239 +43,323 @@ const STATUS_BADGE = {
   Completed: { bg: '#e8f0fe', color: '#1a56db' },
 };
 
-// ── SMALL COMPONENTS ─────────────────────────────────────────
-function Badge({ status }) {
-  const s = STATUS_BADGE[status] || { bg: '#f0f0f0', color: '#666' };
-  return (
-    <span style={{ padding:'2px 10px', borderRadius:20, fontSize:'0.73rem', fontWeight:700, background:s.bg, color:s.color, whiteSpace:'nowrap' }}>
-      {status}
-    </span>
-  );
+// ── WHATSAPP ──────────────────────────────────────────────────
+function whatsappUrl(phone, msg) {
+  const digits = (phone || '').replace(/[^0-9]/g, '');
+  // Egyptian numbers starting with 0 → prefix with country code 20
+  const intl = digits.startsWith('20') ? digits : digits.startsWith('0') ? '2' + digits : '20' + digits;
+  return `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
 }
 
-function ActionBtn({ children, variant, onClick, disabled }) {
-  const variants = {
-    accept:     { bg:'#e6f4ea', color:'#2d7a3a' },
-    reject:     { bg:'#fdecea', color:'#c0392b' },
-    reschedule: { bg:'#fff8e1', color:'#b07d00' },
-    ghost:      { bg:C.light,   color:C.primary  },
-  };
-  const v = variants[variant] || variants.ghost;
+// ── TRANSLATIONS ─────────────────────────────────────────────
+const TR = {
+  ar: {
+    loginTitle: 'بوابة الاستقبال', loginSubtitle: 'عيادة كوتيس — وصول الموظفين',
+    yourName: 'اسمك', namePlaceholder: 'مثال: نور محمد',
+    staffPassword: 'كلمة مرور الموظف', pwdPlaceholder: 'أدخل كلمة مرور الموظف',
+    signIn: '← تسجيل الدخول', demoPassword: 'كلمة المرور التجريبية:',
+    nameError: 'الرجاء إدخال اسمك.', passwordError: 'كلمة المرور غير صحيحة.',
+    portalTitle: 'بوابة الاستقبال', welcome: 'مرحبًا،', signOut: 'خروج',
+    todayBtn: '↩ اليوم', todayLabel: 'اليوم',
+    allDoctors: 'جميع الأطباء', listView: 'قائمة اليوم', gridView: 'جدول زمني', upcomingView: 'المواعيد القادمة',
+    scheduled: 'المجدول', pending: 'قيد الانتظار', confirmed: 'مؤكد', cancelled: 'ملغي',
+    noAppts: 'لا توجد مواعيد في هذا اليوم.',
+    appointmentDetails: 'تفاصيل الموعد',
+    dob: 'تاريخ الميلاد', blood: 'فصيلة الدم', allergies: 'الحساسية',
+    phone: 'الهاتف', email: 'البريد الإلكتروني', appointment: 'الموعد',
+    dateLabel: 'التاريخ', timeLabel: 'الوقت', doctorLabel: 'الطبيب',
+    branchLabel: 'الفرع', deptLabel: 'القسم', statusLabel: 'الحالة',
+    pastVisits: 'الزيارات السابقة', notesLabel: 'ملاحظات',
+    accept: '✓ قبول', reschedule: '⟳ إعادة', reject: '✕ رفض', close: 'إغلاق',
+    whatsapp: 'واتساب',
+    rescheduleFor: 'إعادة جدولة —', notifWillBeSent: 'سيتلقى المريض إشعارًا على:',
+    newDate: 'تاريخ جديد', newTime: 'وقت جديد',
+    confirmReschedule: 'تأكيد إعادة الجدولة', cancelBtn: 'إلغاء',
+    statuses: { Confirmed:'مؤكد', Pending:'قيد الانتظار', Cancelled:'ملغي', Completed:'مكتمل' },
+    clickToJump: 'انقر على أي خلية للانتقال إلى جدول ذلك اليوم.',
+    apptCount: (n) => `${n} موعد`,
+    upcomingTitle: 'المواعيد القادمة',
+    deptShort: { 'Advanced Laser Center':'مركز الليزر', 'Cosmetic Dermatology':'تجميل', 'Clinical Dermatology':'طب الجلد' },
+    branchNames: { 'Fifth Settlement':'التجمع الخامس', 'Mohandeseen':'المهندسين', 'Heliopolis':'مصر الجديدة', 'Sheikh Zayed':'الشيخ زايد' },
+    toastConfirmed:   (n,e,d,t) => `تم الإرسال إلى ${n} (${e}): تم تأكيد موعدك بتاريخ ${d} الساعة ${t}.`,
+    toastCancelled:   (n,e,d,t) => `تم الإرسال إلى ${n} (${e}): تم إلغاء موعدك بتاريخ ${d} الساعة ${t}.`,
+    toastRescheduled: (n,e,d,t) => `تم الإرسال إلى ${n} (${e}): تمت إعادة جدولة موعدك إلى ${d} الساعة ${t}.`,
+    waMsgConfirm:   (name, date, time, branch) => `مرحباً ${name}، نتواصل معك من عيادة كوتيس. تم تأكيد موعدك بتاريخ ${date} الساعة ${time} في فرع ${branch}. نتمنى لك يوماً سعيداً 🌿`,
+    waMsgChange:    (name) => `مرحباً ${name}، نتواصل معك من عيادة كوتيس بخصوص موعدك القادم. `,
+    days: DAY_NAMES_AR, months: MONTH_NAMES_AR,
+  },
+  en: {
+    loginTitle: 'Receptionist Portal', loginSubtitle: 'Cutis Clinic — Staff Access',
+    yourName: 'Your Name', namePlaceholder: 'e.g. Nour Mohamed',
+    staffPassword: 'Staff Password', pwdPlaceholder: 'Enter staff password',
+    signIn: 'Sign In →', demoPassword: 'Demo password:',
+    nameError: 'Please enter your name.', passwordError: 'Incorrect password.',
+    portalTitle: 'Receptionist Portal', welcome: 'Welcome,', signOut: 'Sign Out',
+    todayBtn: '↩ Today', todayLabel: 'Today',
+    allDoctors: 'All Doctors', listView: "Today's List", gridView: 'Time Grid', upcomingView: 'Upcoming',
+    scheduled: 'Scheduled', pending: 'Pending', confirmed: 'Confirmed', cancelled: 'Cancelled',
+    noAppts: 'No appointments for this day.',
+    appointmentDetails: 'Appointment Details',
+    dob: 'DOB', blood: 'Blood', allergies: 'Allergies',
+    phone: 'Phone', email: 'Email', appointment: 'Appointment',
+    dateLabel: 'Date', timeLabel: 'Time', doctorLabel: 'Doctor',
+    branchLabel: 'Branch', deptLabel: 'Department', statusLabel: 'Status',
+    pastVisits: 'Past Visits', notesLabel: 'Notes',
+    accept: '✓ Accept', reschedule: '⟳ Reschedule', reject: '✕ Reject', close: 'Close',
+    whatsapp: 'WhatsApp',
+    rescheduleFor: 'Reschedule —', notifWillBeSent: 'Notification will be sent to:',
+    newDate: 'New Date', newTime: 'New Time',
+    confirmReschedule: 'Confirm Reschedule', cancelBtn: 'Cancel',
+    statuses: { Confirmed:'Confirmed', Pending:'Pending', Cancelled:'Cancelled', Completed:'Completed' },
+    clickToJump: "Click any cell to jump to that day's schedule.",
+    apptCount: (n) => `${n} appt${n !== 1 ? 's' : ''}`,
+    upcomingTitle: 'Upcoming Appointments',
+    deptShort: { 'Advanced Laser Center':'Laser', 'Cosmetic Dermatology':'Cosmetic', 'Clinical Dermatology':'Clinical' },
+    branchNames: { 'Fifth Settlement':'Fifth Settlement', 'Mohandeseen':'Mohandeseen', 'Heliopolis':'Heliopolis', 'Sheikh Zayed':'Sheikh Zayed' },
+    toastConfirmed:   (n,e,d,t) => `Sent to ${n} (${e}): Appointment on ${d} at ${t} confirmed.`,
+    toastCancelled:   (n,e,d,t) => `Sent to ${n} (${e}): Appointment on ${d} at ${t} cancelled.`,
+    toastRescheduled: (n,e,d,t) => `Sent to ${n} (${e}): Appointment rescheduled to ${d} at ${t}.`,
+    waMsgConfirm:   (name, date, time, branch) => `Hi ${name}, this is Cutis Clinic. Your appointment on ${date} at ${time} at ${branch} branch is confirmed. See you soon 🌿`,
+    waMsgChange:    (name) => `Hi ${name}, this is Cutis Clinic regarding your upcoming appointment. `,
+    days: DAY_NAMES_EN, months: MONTH_NAMES_EN,
+  },
+};
+
+// ── HELPERS ──────────────────────────────────────────────────
+function fmtDate(dateStr, T) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${T.days[d.getDay()]}, ${d.getDate()} ${T.months[d.getMonth()]}`;
+}
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function getNextWorkDays(fromDate, count) {
+  const result = [];
+  let cur = fromDate;
+  while (result.length < count) {
+    cur = addDays(cur, 1);
+    if (new Date(cur + 'T00:00:00').getDay() !== 5) result.push(cur);
+  }
+  return result;
+}
+
+// ── SMALL UI ──────────────────────────────────────────────────
+function Badge({ status, T }) {
+  const s = STATUS_BADGE[status] || { bg: '#f0f0f0', color: '#666' };
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      style={{
-        background: v.bg, color: v.color, border: 'none',
-        borderRadius: 7, padding: '4px 11px', fontSize: '0.77rem',
-        fontWeight: 700, cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1, fontFamily: 'inherit',
-      }}
-    >
-      {children}
-    </button>
+    <span style={{ padding:'4px 12px', borderRadius:20, fontSize:'0.82rem', fontWeight:800, background:s.bg, color:s.color, whiteSpace:'nowrap', display:'inline-block' }}>
+      {T.statuses[status] || status}
+    </span>
   );
 }
 
 function Modal({ title, onClose, children, width = 600 }) {
   return (
-    <div
-      onClick={e => e.target === e.currentTarget && onClose()}
-      style={{ position:'fixed', inset:0, background:'rgba(10,20,50,0.5)', zIndex:2000, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem' }}
-    >
-      <div style={{ background:'#fff', borderRadius:16, width:'100%', maxWidth:width, maxHeight:'90vh', overflow:'auto', boxShadow:'0 20px 60px rgba(0,0,0,0.22)' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'1rem 1.4rem', borderBottom:`1px solid ${C.border}`, position:'sticky', top:0, background:'#fff', zIndex:1 }}>
-          <h3 style={{ margin:0, fontSize:'1rem', color:C.primary }}>{title}</h3>
-          <button onClick={onClose} style={{ background:'none', border:'none', fontSize:'1.5rem', cursor:'pointer', color:C.muted, lineHeight:1, padding:'0 4px' }}>×</button>
+    <div onClick={e => e.target === e.currentTarget && onClose()} style={{ position:'fixed', inset:0, background:'rgba(10,20,50,0.55)', zIndex:2000, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem' }}>
+      <div style={{ background:'#fff', borderRadius:20, width:'100%', maxWidth:width, maxHeight:'92vh', overflow:'auto', boxShadow:'0 24px 64px rgba(0,0,0,0.25)' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'1.2rem 1.6rem', borderBottom:`1px solid #e2e6f0`, position:'sticky', top:0, background:'#fff', zIndex:1 }}>
+          <h3 style={{ margin:0, fontSize:'1.1rem', fontWeight:800, color:C.primary }}>{title}</h3>
+          <button onClick={onClose} style={{ background:'none', border:'none', fontSize:'1.6rem', cursor:'pointer', color:C.muted, lineHeight:1, padding:'0 4px' }}>×</button>
         </div>
-        <div style={{ padding:'1.4rem' }}>{children}</div>
+        <div style={{ padding:'1.6rem' }}>{children}</div>
       </div>
     </div>
   );
 }
 
-// ── LOGIN GATE ───────────────────────────────────────────────
-function LoginGate({ onLogin }) {
-  const [name, setName] = useState('');
-  const [pwd,  setPwd]  = useState('');
-  const [error, setError] = useState('');
+function Toast({ message, type, onClose }) {
+  const s = { success:{bg:'#e6f4ea',color:'#2d7a3a',icon:'✓'}, danger:{bg:'#fdecea',color:'#c0392b',icon:'✕'}, warn:{bg:'#fff8e1',color:'#b07d00',icon:'⟳'} }[type] || { bg:'#e6f4ea',color:'#2d7a3a',icon:'✓' };
+  return (
+    <div style={{ position:'fixed', bottom:32, right:32, zIndex:3000, background:s.bg, color:s.color, border:`1.5px solid ${s.color}44`, borderRadius:14, padding:'16px 20px', maxWidth:440, boxShadow:'0 8px 32px rgba(0,0,0,0.13)', display:'flex', gap:12, alignItems:'flex-start', animation:'slideInRight 0.3s ease' }}>
+      <span style={{ fontSize:'1.2rem', flexShrink:0 }}>{s.icon}</span>
+      <div style={{ flex:1, fontSize:'0.9rem', lineHeight:1.5 }}>{message}</div>
+      <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:s.color, fontSize:'1.2rem', lineHeight:1, flexShrink:0, padding:0 }}>×</button>
+    </div>
+  );
+}
 
-  const submit = e => {
-    e.preventDefault();
-    if (!name.trim())      { setError('Please enter your name.'); return; }
-    if (pwd !== 'cutis2024') { setError('Incorrect password.'); return; }
-    onLogin(name.trim());
-  };
+// ── LOGIN GATE ───────────────────────────────────────────────
+function LoginGate({ onLogin, lang, onToggleLang }) {
+  const T = TR[lang];
+  const [name, setName] = useState('');
+  const [pwd, setPwd]   = useState('');
+  const [err, setErr]   = useState('');
+  const isRTL = lang === 'ar';
+  const font  = isRTL ? "'Cairo','Segoe UI',sans-serif" : 'inherit';
+  const submit = e => { e.preventDefault(); if (!name.trim()) { setErr(T.nameError); return; } if (pwd !== 'cutis2024') { setErr(T.passwordError); return; } onLogin(name.trim()); };
 
   return (
-    <div style={{ minHeight:'calc(100vh - 70px)', display:'flex', alignItems:'center', justifyContent:'center', background:C.bg, padding:'2rem' }}>
-      <div style={{ background:C.white, borderRadius:20, padding:'2.5rem 2rem', width:'100%', maxWidth:400, boxShadow:'0 8px 40px rgba(0,0,0,0.1)' }}>
-        <div style={{ textAlign:'center', marginBottom:'2rem' }}>
-          <div style={{ width:56, height:56, background:C.primary, borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 1rem', fontSize:'1.5rem', color:'#fff' }}>⚕</div>
-          <h2 style={{ margin:0, color:C.primary, fontSize:'1.35rem' }}>Receptionist Portal</h2>
-          <p style={{ color:C.muted, fontSize:'0.86rem', marginTop:6, marginBottom:0 }}>Cutis Clinic — Staff Access</p>
+    <div dir={isRTL ? 'rtl' : 'ltr'} style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#f5f6fa', fontFamily:font }}>
+      <div style={{ background:'#fff', borderRadius:24, padding:'3rem 2.5rem', width:'100%', maxWidth:420, boxShadow:'0 8px 40px rgba(0,0,0,0.1)', position:'relative' }}>
+        <button onClick={onToggleLang} style={{ position:'absolute', top:18, [isRTL ? 'left':'right']:18, background:C.light, border:`1px solid ${C.border}`, borderRadius:8, padding:'5px 13px', fontSize:'0.82rem', fontWeight:800, cursor:'pointer', color:C.primary, fontFamily:'inherit' }}>
+          {lang === 'ar' ? 'EN' : 'عربي'}
+        </button>
+
+        {/* Cutis logo */}
+        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:28, justifyContent:'center' }}>
+          <div style={{ width:44, height:44, background:'var(--brand-blue, #009cdb)', borderRadius:10, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.6rem', fontWeight:900 }}>C</div>
+          <div>
+            <div style={{ fontSize:'1.5rem', fontWeight:900, color:'#009cdb', lineHeight:1 }}>Cutis</div>
+            <div style={{ fontSize:'0.6rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.12em', color:'#b2d234', marginTop:2 }}>The Skin Clinic</div>
+          </div>
         </div>
+
+        <h2 style={{ margin:'0 0 6px', color:C.primary, fontSize:'1.4rem', fontWeight:800, textAlign:'center' }}>{T.loginTitle}</h2>
+        <p style={{ color:C.muted, fontSize:'0.88rem', marginTop:0, marginBottom:24, textAlign:'center' }}>{T.loginSubtitle}</p>
+
         <form onSubmit={submit}>
           <div style={{ marginBottom:14 }}>
-            <label style={{ display:'block', fontWeight:600, fontSize:'0.83rem', color:C.primary, marginBottom:6 }}>Your Name</label>
-            <input
-              type="text" value={name} placeholder="e.g. Nour Mohamed"
-              onChange={e => { setName(e.target.value); setError(''); }}
-              style={{ width:'100%', padding:'11px 14px', borderRadius:8, border:`1.5px solid ${C.border}`, fontSize:'0.93rem', fontFamily:'inherit', boxSizing:'border-box' }}
-            />
+            <label style={{ display:'block', fontWeight:700, fontSize:'0.88rem', color:C.primary, marginBottom:7 }}>{T.yourName}</label>
+            <input type="text" value={name} placeholder={T.namePlaceholder} onChange={e => { setName(e.target.value); setErr(''); }}
+              style={{ width:'100%', padding:'13px 16px', borderRadius:10, border:`1.5px solid ${C.border}`, fontSize:'1rem', fontFamily:'inherit', boxSizing:'border-box' }} />
           </div>
           <div style={{ marginBottom:14 }}>
-            <label style={{ display:'block', fontWeight:600, fontSize:'0.83rem', color:C.primary, marginBottom:6 }}>Staff Password</label>
-            <input
-              type="password" value={pwd} placeholder="Enter staff password"
-              onChange={e => { setPwd(e.target.value); setError(''); }}
-              style={{ width:'100%', padding:'11px 14px', borderRadius:8, border:`1.5px solid ${error ? C.danger : C.border}`, fontSize:'0.93rem', fontFamily:'inherit', boxSizing:'border-box' }}
-            />
+            <label style={{ display:'block', fontWeight:700, fontSize:'0.88rem', color:C.primary, marginBottom:7 }}>{T.staffPassword}</label>
+            <input type="password" value={pwd} placeholder={T.pwdPlaceholder} onChange={e => { setPwd(e.target.value); setErr(''); }}
+              style={{ width:'100%', padding:'13px 16px', borderRadius:10, border:`1.5px solid ${err ? C.danger : C.border}`, fontSize:'1rem', fontFamily:'inherit', boxSizing:'border-box' }} />
           </div>
-          {error && <p style={{ color:C.danger, fontSize:'0.82rem', marginBottom:10, marginTop:0 }}>{error}</p>}
-          <button type="submit" style={{ width:'100%', padding:'12px', background:C.primary, color:'#fff', border:'none', borderRadius:10, fontWeight:700, fontSize:'0.95rem', cursor:'pointer', fontFamily:'inherit' }}>
-            Sign In →
+          {err && <p style={{ color:C.danger, fontSize:'0.86rem', marginBottom:10, marginTop:0 }}>{err}</p>}
+          <button type="submit" style={{ width:'100%', padding:'14px', background:C.primary, color:'#fff', border:'none', borderRadius:12, fontWeight:800, fontSize:'1rem', cursor:'pointer', fontFamily:'inherit', marginTop:6 }}>
+            {T.signIn}
           </button>
         </form>
-        <p style={{ textAlign:'center', color:C.muted, fontSize:'0.78rem', marginTop:'1.4rem', marginBottom:0 }}>
-          Demo password: <code style={{ background:C.light, padding:'2px 6px', borderRadius:4, fontSize:'0.82rem' }}>cutis2024</code>
+        <p style={{ textAlign:'center', color:C.muted, fontSize:'0.8rem', marginTop:'1.4rem', marginBottom:0 }}>
+          {T.demoPassword} <code style={{ background:C.light, padding:'2px 7px', borderRadius:4, fontSize:'0.84rem' }}>cutis2024</code>
         </p>
       </div>
     </div>
   );
 }
 
-// ── TOAST ────────────────────────────────────────────────────
-function Toast({ message, type, onClose }) {
-  const styles = {
-    success: { bg:'#e6f4ea', color:'#2d7a3a', border:'#a3d9ac', icon:'✓' },
-    danger:  { bg:'#fdecea', color:'#c0392b', border:'#f5b0a8', icon:'✕' },
-    warn:    { bg:'#fff8e1', color:'#b07d00', border:'#f0d060', icon:'⟳' },
-  };
-  const s = styles[type] || styles.success;
-  return (
-    <div style={{ position:'fixed', bottom:32, right:32, zIndex:3000, background:s.bg, color:s.color, border:`1.5px solid ${s.border}`, borderRadius:12, padding:'14px 18px', maxWidth:400, boxShadow:'0 8px 32px rgba(0,0,0,0.13)', display:'flex', gap:10, alignItems:'flex-start', animation:'slideInRight 0.3s ease' }}>
-      <span style={{ fontSize:'1.1rem', flexShrink:0 }}>{s.icon}</span>
-      <div style={{ flex:1, fontSize:'0.85rem', lineHeight:1.55 }}>{message}</div>
-      <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:s.color, fontSize:'1.1rem', lineHeight:1, flexShrink:0, padding:0 }}>×</button>
-    </div>
-  );
-}
-
 // ── PATIENT DETAIL MODAL ─────────────────────────────────────
-function PatientModal({ appt, patients, onClose, onAccept, onReject, onReschedule }) {
+function PatientModal({ appt, patients, T, lang, onClose, onAccept, onReject, onReschedule }) {
   const patient = patients.find(p => p.id === appt.patientId);
   const doctor  = DOCTORS.find(d => d.id === appt.doctorId);
+  const phone   = appt.patientPhone || patient?.phone || '';
+  const name    = appt.patientName || patient?.name || '—';
+  const isRTL   = lang === 'ar';
+
+  const waMsgDefault = isRTL
+    ? T.waMsgChange(name)
+    : T.waMsgChange(name);
+
   return (
-    <Modal title="Appointment Details" onClose={onClose} width={580}>
-      {/* Patient card */}
-      <div style={{ display:'flex', gap:12, alignItems:'center', padding:'13px 16px', background:C.light, borderRadius:10, marginBottom:18 }}>
-        <div style={{ width:42, height:42, borderRadius:10, background:C.primary, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'1.05rem', flexShrink:0 }}>
-          {patient?.name?.charAt(0) || '?'}
+    <Modal title={T.appointmentDetails} onClose={onClose} width={600}>
+      {/* Patient header */}
+      <div style={{ display:'flex', gap:14, alignItems:'center', padding:'16px 18px', background:C.light, borderRadius:12, marginBottom:20 }}>
+        <div style={{ width:52, height:52, borderRadius:12, background:C.primary, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'1.25rem', flexShrink:0 }}>
+          {name.charAt(0)}
         </div>
-        <div>
-          <div style={{ fontWeight:700, color:C.primary, fontSize:'0.98rem' }}>{patient?.name}</div>
-          <div style={{ fontSize:'0.8rem', color:C.muted, marginTop:2 }}>
-            DOB: {patient?.dob} &nbsp;·&nbsp; Blood: {patient?.bloodType} &nbsp;·&nbsp; Allergies: <strong style={{ color: patient?.allergies !== 'None' ? C.danger : C.muted }}>{patient?.allergies}</strong>
+        <div style={{ flex:1 }}>
+          <div style={{ fontWeight:800, color:C.primary, fontSize:'1.15rem' }}>{name}</div>
+          <div style={{ fontSize:'0.88rem', color:C.muted, marginTop:3 }}>
+            {T.dob}: {patient?.dob || '—'} &nbsp;·&nbsp; {T.blood}: {patient?.bloodType || '—'} &nbsp;·&nbsp;
+            {T.allergies}: <strong style={{ color: patient?.allergies && patient.allergies !== 'None' ? C.danger : C.muted }}>{patient?.allergies || '—'}</strong>
           </div>
         </div>
+        {/* WhatsApp quick-link */}
+        {phone && (
+          <a href={whatsappUrl(phone, waMsgDefault)} target="_blank" rel="noreferrer"
+            style={{ display:'flex', alignItems:'center', gap:6, background:'#25d366', color:'#fff', borderRadius:10, padding:'8px 14px', fontWeight:700, fontSize:'0.85rem', textDecoration:'none', flexShrink:0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            {T.whatsapp}
+          </a>
+        )}
       </div>
 
-      {/* Contact info */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px 20px', marginBottom:18, fontSize:'0.86rem' }}>
-        <div><span style={{ color:C.muted }}>Phone: </span><strong>{patient?.phone}</strong></div>
-        <div style={{ wordBreak:'break-all' }}><span style={{ color:C.muted }}>Email: </span><strong>{patient?.email}</strong></div>
+      {/* Contact */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px 24px', marginBottom:20, fontSize:'0.9rem' }}>
+        <div><span style={{ color:C.muted }}>{T.phone}: </span><strong>{phone || '—'}</strong></div>
+        <div style={{ wordBreak:'break-all' }}><span style={{ color:C.muted }}>{T.email}: </span><strong>{appt.patientEmail || patient?.email || '—'}</strong></div>
       </div>
 
-      {/* Appointment summary */}
-      <div style={{ background:C.infoBg, border:`1px solid #b3c9f8`, borderRadius:10, padding:'13px 16px', marginBottom:18 }}>
-        <div style={{ fontWeight:700, color:C.info, fontSize:'0.76rem', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:10 }}>Appointment</div>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'7px 20px', fontSize:'0.85rem' }}>
-          <div><span style={{ color:C.muted }}>Date: </span><strong>{fmtDate(appt.date)}</strong></div>
-          <div><span style={{ color:C.muted }}>Time: </span><strong style={{ color:C.accent }}>{appt.time}</strong></div>
-          <div><span style={{ color:C.muted }}>Doctor: </span><strong>{doctor?.short}</strong></div>
-          <div><span style={{ color:C.muted }}>Branch: </span><strong>{appt.branch}</strong></div>
-          <div><span style={{ color:C.muted }}>Department: </span><strong>{appt.department}</strong></div>
-          <div style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ color:C.muted }}>Status: </span><Badge status={appt.status} /></div>
+      {/* Appointment info */}
+      <div style={{ background:'#eef4ff', border:'1px solid #b3c9f8', borderRadius:12, padding:'14px 18px', marginBottom:18 }}>
+        <div style={{ fontWeight:800, color:C.info, fontSize:'0.76rem', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:12 }}>{T.appointment}</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px 24px', fontSize:'0.9rem' }}>
+          <div><span style={{ color:C.muted }}>{T.dateLabel}: </span><strong>{fmtDate(appt.date, T)}</strong></div>
+          <div><span style={{ color:C.muted }}>{T.timeLabel}: </span><strong style={{ color:C.accent, fontSize:'1rem' }}>{appt.time}</strong></div>
+          <div><span style={{ color:C.muted }}>{T.doctorLabel}: </span><strong>{appt.doctorName || doctor?.short || '—'}</strong></div>
+          <div><span style={{ color:C.muted }}>{T.branchLabel}: </span><strong>{T.branchNames[appt.branch] || appt.branch}</strong></div>
+          <div><span style={{ color:C.muted }}>{T.deptLabel}: </span><strong>{appt.department}</strong></div>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}><span style={{ color:C.muted }}>{T.statusLabel}: </span><Badge status={appt.status} T={T} /></div>
         </div>
-        {appt.notes && <div style={{ marginTop:10, fontSize:'0.82rem', color:C.muted, fontStyle:'italic' }}>"{appt.notes}"</div>}
+        {appt.notes && <div style={{ marginTop:12, fontSize:'0.86rem', color:C.muted, fontStyle:'italic', borderTop:'1px solid #c8d8f8', paddingTop:10 }}>"{appt.notes}"</div>}
       </div>
 
-      {/* Medical history preview */}
+      {/* Medical history */}
       {patient?.history?.length > 0 && (
         <div style={{ marginBottom:18 }}>
-          <div style={{ fontWeight:700, fontSize:'0.8rem', color:C.primary, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Past Visits</div>
+          <div style={{ fontWeight:800, fontSize:'0.82rem', color:C.primary, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:10 }}>{T.pastVisits}</div>
           {patient.history.map((h, i) => (
-            <div key={i} style={{ padding:'9px 12px', borderRadius:8, background:'#fafbff', border:`1px solid ${C.border}`, marginBottom:6, fontSize:'0.83rem' }}>
-              <div style={{ fontWeight:600, color:C.primary }}>{h.diagnosis}</div>
-              <div style={{ color:C.muted, marginTop:2 }}>{h.date} · {h.doctor}</div>
-              <div style={{ color:C.muted, marginTop:1 }}>{h.treatment}</div>
+            <div key={i} style={{ padding:'10px 14px', borderRadius:10, background:'#fafbff', border:`1px solid ${C.border}`, marginBottom:8, fontSize:'0.86rem' }}>
+              <div style={{ fontWeight:700, color:C.primary }}>{h.diagnosis}</div>
+              <div style={{ color:C.muted, marginTop:3 }}>{h.date} · {h.doctor}</div>
+              <div style={{ color:C.muted, marginTop:2 }}>{h.treatment}</div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Action buttons */}
-      <div style={{ display:'flex', gap:8, flexWrap:'wrap', paddingTop:4 }}>
+      {/* Actions */}
+      <div style={{ display:'flex', gap:10, flexWrap:'wrap', paddingTop:4 }}>
         {appt.status === 'Pending' && (
-          <ActionBtn variant="accept" onClick={onAccept}>✓ Accept Booking</ActionBtn>
+          <button onClick={onAccept} style={{ background:'#e6f4ea', color:'#2d7a3a', border:'none', borderRadius:8, padding:'9px 16px', fontSize:'0.9rem', fontWeight:800, cursor:'pointer', fontFamily:'inherit' }}>{T.accept}</button>
         )}
         {(appt.status === 'Pending' || appt.status === 'Confirmed') && (
-          <ActionBtn variant="reschedule" onClick={onReschedule}>⟳ Reschedule</ActionBtn>
+          <button onClick={onReschedule} style={{ background:'#fff8e1', color:'#b07d00', border:'none', borderRadius:8, padding:'9px 16px', fontSize:'0.9rem', fontWeight:800, cursor:'pointer', fontFamily:'inherit' }}>{T.reschedule}</button>
         )}
         {(appt.status === 'Pending' || appt.status === 'Confirmed') && (
-          <ActionBtn variant="reject" onClick={onReject}>✕ Reject</ActionBtn>
+          <button onClick={onReject} style={{ background:'#fdecea', color:'#c0392b', border:'none', borderRadius:8, padding:'9px 16px', fontSize:'0.9rem', fontWeight:800, cursor:'pointer', fontFamily:'inherit' }}>{T.reject}</button>
         )}
-        <ActionBtn variant="ghost" onClick={onClose}>Close</ActionBtn>
+        {phone && (
+          <a href={whatsappUrl(phone, waMsgDefault)} target="_blank" rel="noreferrer"
+            style={{ display:'flex', alignItems:'center', gap:6, background:'#e8faf0', color:'#1a7a45', border:'none', borderRadius:8, padding:'9px 16px', fontSize:'0.9rem', fontWeight:800, textDecoration:'none' }}>
+            📱 {T.whatsapp}
+          </a>
+        )}
+        <button onClick={onClose} style={{ background:C.light, color:C.primary, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 16px', fontSize:'0.9rem', fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>{T.close}</button>
       </div>
     </Modal>
   );
 }
 
 // ── RESCHEDULE MODAL ─────────────────────────────────────────
-function RescheduleModal({ appt, onClose, onConfirm }) {
+function RescheduleModal({ appt, patients, T, onClose, onConfirm }) {
   const [newDate, setNewDate] = useState(appt.date);
   const [newTime, setNewTime] = useState('');
+  const patient = patients.find(p => p.id === appt.patientId);
+  const email   = patient?.email || appt.patientEmail || '—';
 
   const dates = useMemo(() => {
-    const result = [];
-    const base = new Date(TODAY + 'T00:00:00');
-    for (let i = 0; result.length < 14; i++) {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      if (d.getDay() === 5) continue;
-      result.push(d.toISOString().slice(0, 10));
+    const res = []; const base = new Date(TODAY + 'T00:00:00');
+    for (let i = 0; res.length < 14; i++) {
+      const d = new Date(base); d.setDate(base.getDate() + i);
+      if (d.getDay() !== 5) res.push(d.toISOString().slice(0, 10));
     }
-    return result;
+    return res;
   }, []);
 
   return (
-    <Modal title={`Reschedule — ${appt.patientName}`} onClose={onClose} width={520}>
-      <p style={{ color:C.muted, fontSize:'0.86rem', marginTop:0, marginBottom:16 }}>
-        Select a new date and time. The patient will receive a notification at <strong>{INIT_PATIENTS.find(p => p.id === appt.patientId)?.email}</strong>.
+    <Modal title={`${T.rescheduleFor} ${appt.patientName}`} onClose={onClose} width={520}>
+      <p style={{ color:C.muted, fontSize:'0.9rem', marginTop:0, marginBottom:18 }}>
+        {T.notifWillBeSent} <strong>{email}</strong>
       </p>
 
-      <div style={{ marginBottom:20 }}>
-        <div style={{ fontWeight:600, fontSize:'0.83rem', color:C.primary, marginBottom:8 }}>New Date</div>
-        <div style={{ display:'flex', gap:7, overflowX:'auto', paddingBottom:4 }}>
+      <div style={{ marginBottom:22 }}>
+        <div style={{ fontWeight:700, fontSize:'0.9rem', color:C.primary, marginBottom:10 }}>{T.newDate}</div>
+        <div style={{ display:'flex', gap:8, overflowX:'auto', paddingBottom:4 }}>
           {dates.map(d => {
             const dt = new Date(d + 'T00:00:00');
             const sel = d === newDate;
             return (
-              <button
-                key={d}
-                onClick={() => { setNewDate(d); setNewTime(''); }}
-                style={{
-                  flexShrink:0, display:'flex', flexDirection:'column', alignItems:'center',
-                  padding:'8px 11px', borderRadius:10, minWidth:52, cursor:'pointer', fontFamily:'inherit',
-                  border: `2px solid ${sel ? C.primary : C.border}`,
-                  background: sel ? C.primary : '#fff',
-                  color: sel ? '#fff' : C.primary,
-                }}
-              >
-                <span style={{ fontSize:'0.62rem', fontWeight:700, opacity:0.75, textTransform:'uppercase' }}>{DAY_NAMES[dt.getDay()]}</span>
-                <span style={{ fontSize:'1.25rem', fontWeight:700, lineHeight:1.3, margin:'2px 0' }}>{dt.getDate()}</span>
-                <span style={{ fontSize:'0.62rem', fontWeight:600, opacity:0.75 }}>{MONTH_NAMES[dt.getMonth()]}</span>
+              <button key={d} onClick={() => { setNewDate(d); setNewTime(''); }}
+                style={{ flexShrink:0, display:'flex', flexDirection:'column', alignItems:'center', padding:'10px 13px', borderRadius:12, minWidth:58, cursor:'pointer', fontFamily:'inherit', border:`2px solid ${sel ? C.primary : C.border}`, background:sel ? C.primary : '#fff', color:sel ? '#fff' : C.primary }}>
+                <span style={{ fontSize:'0.65rem', fontWeight:700, opacity:0.75, textTransform:'uppercase' }}>{T.days[dt.getDay()]}</span>
+                <span style={{ fontSize:'1.4rem', fontWeight:800, lineHeight:1.3, margin:'2px 0' }}>{dt.getDate()}</span>
+                <span style={{ fontSize:'0.65rem', fontWeight:600, opacity:0.75 }}>{T.months[dt.getMonth()]}</span>
               </button>
             );
           })}
@@ -342,20 +367,12 @@ function RescheduleModal({ appt, onClose, onConfirm }) {
       </div>
 
       {newDate && (
-        <div style={{ marginBottom:22 }}>
-          <div style={{ fontWeight:600, fontSize:'0.83rem', color:C.primary, marginBottom:8 }}>New Time</div>
-          <div style={{ display:'flex', flexWrap:'wrap', gap:7 }}>
+        <div style={{ marginBottom:24 }}>
+          <div style={{ fontWeight:700, fontSize:'0.9rem', color:C.primary, marginBottom:10 }}>{T.newTime}</div>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
             {TIME_SLOTS.map(slot => (
-              <button
-                key={slot}
-                onClick={() => setNewTime(slot)}
-                style={{
-                  padding:'7px 13px', borderRadius:7, fontSize:'0.82rem', fontWeight:600, cursor:'pointer', fontFamily:'inherit',
-                  border: `1.5px solid ${newTime === slot ? C.primary : C.border}`,
-                  background: newTime === slot ? C.primary : '#fff',
-                  color: newTime === slot ? '#fff' : C.primary,
-                }}
-              >
+              <button key={slot} onClick={() => setNewTime(slot)}
+                style={{ padding:'9px 16px', borderRadius:8, fontSize:'0.9rem', fontWeight:700, cursor:'pointer', fontFamily:'inherit', border:`1.5px solid ${newTime === slot ? C.primary : C.border}`, background:newTime === slot ? C.primary : '#fff', color:newTime === slot ? '#fff' : C.primary }}>
                 {slot}
               </button>
             ))}
@@ -363,19 +380,74 @@ function RescheduleModal({ appt, onClose, onConfirm }) {
         </div>
       )}
 
-      <div style={{ display:'flex', gap:8 }}>
-        <button
-          onClick={() => newDate && newTime && onConfirm(newDate, newTime)}
-          disabled={!newTime}
-          style={{ padding:'9px 18px', background: !newTime ? '#ccc' : C.primary, color:'#fff', border:'none', borderRadius:9, fontWeight:700, fontSize:'0.88rem', cursor: !newTime ? 'not-allowed' : 'pointer', fontFamily:'inherit' }}
-        >
-          Confirm Reschedule
+      <div style={{ display:'flex', gap:10 }}>
+        <button onClick={() => newDate && newTime && onConfirm(newDate, newTime)} disabled={!newTime}
+          style={{ padding:'11px 20px', background:!newTime ? '#ccc' : C.primary, color:'#fff', border:'none', borderRadius:10, fontWeight:800, fontSize:'0.95rem', cursor:!newTime ? 'not-allowed' : 'pointer', fontFamily:'inherit' }}>
+          {T.confirmReschedule}
         </button>
-        <button onClick={onClose} style={{ padding:'9px 18px', background:C.light, color:C.primary, border:`1px solid ${C.border}`, borderRadius:9, fontWeight:600, fontSize:'0.88rem', cursor:'pointer', fontFamily:'inherit' }}>
-          Cancel
+        <button onClick={onClose} style={{ padding:'11px 20px', background:C.light, color:C.primary, border:`1px solid ${C.border}`, borderRadius:10, fontWeight:700, fontSize:'0.95rem', cursor:'pointer', fontFamily:'inherit' }}>
+          {T.cancelBtn}
         </button>
       </div>
     </Modal>
+  );
+}
+
+// ── APPOINTMENT ROW (used in list + upcoming views) ───────────
+function ApptRow({ appt, T, lang, patients, onView, onAccept, onReject, onReschedule }) {
+  const s      = STATUS_BADGE[appt.status] || { bg:'#f0f0f0', color:'#666' };
+  const doctor = DOCTORS.find(d => d.id === appt.doctorId);
+  const phone  = appt.patientPhone || patients.find(p => p.id === appt.patientId)?.phone || '';
+  const name   = appt.patientName || '—';
+  const isRTL  = lang === 'ar';
+
+  const wMsg = isRTL
+    ? T.waMsgConfirm(name, fmtDate(appt.date, T), appt.time, T.branchNames[appt.branch] || appt.branch)
+    : T.waMsgConfirm(name, fmtDate(appt.date, T), appt.time, appt.branch);
+
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:16, padding:'16px 20px', background:'#fff', borderRadius:14, marginBottom:10, boxShadow:'0 2px 8px rgba(0,0,0,0.05)', border:`1.5px solid ${C.border}`, flexWrap:'wrap', cursor:'pointer' }}
+      onClick={onView}>
+
+      {/* Time */}
+      <div style={{ minWidth:64, textAlign:'center', flexShrink:0 }}>
+        <div style={{ fontSize:'1.35rem', fontWeight:900, color:C.primary, lineHeight:1 }}>{appt.time}</div>
+      </div>
+
+      {/* Patient info */}
+      <div style={{ flex:1, minWidth:160 }}>
+        <div style={{ fontWeight:800, fontSize:'1.05rem', color:C.primary }}>{name}</div>
+        {phone && (
+          <div style={{ fontSize:'0.9rem', color:C.muted, marginTop:3, fontWeight:600, direction:'ltr', textAlign: isRTL ? 'right' : 'left' }}>{phone}</div>
+        )}
+        <div style={{ fontSize:'0.82rem', color:C.muted, marginTop:2 }}>
+          {doctor?.short || appt.doctorName || '—'} · {T.deptShort[appt.department] || appt.department}
+        </div>
+      </div>
+
+      {/* Status */}
+      <Badge status={appt.status} T={T} />
+
+      {/* Actions */}
+      <div style={{ display:'flex', gap:7, flexShrink:0, flexWrap:'wrap' }} onClick={e => e.stopPropagation()}>
+        {appt.status === 'Pending' && (
+          <button onClick={onAccept} style={{ background:'#e6f4ea', color:'#2d7a3a', border:'none', borderRadius:8, padding:'7px 13px', fontSize:'0.85rem', fontWeight:800, cursor:'pointer', fontFamily:'inherit' }}>✓</button>
+        )}
+        {(appt.status === 'Pending' || appt.status === 'Confirmed') && (
+          <button onClick={onReschedule} style={{ background:'#fff8e1', color:'#b07d00', border:'none', borderRadius:8, padding:'7px 13px', fontSize:'0.85rem', fontWeight:800, cursor:'pointer', fontFamily:'inherit' }}>⟳</button>
+        )}
+        {(appt.status === 'Pending' || appt.status === 'Confirmed') && (
+          <button onClick={onReject} style={{ background:'#fdecea', color:'#c0392b', border:'none', borderRadius:8, padding:'7px 13px', fontSize:'0.85rem', fontWeight:800, cursor:'pointer', fontFamily:'inherit' }}>✕</button>
+        )}
+        {phone && (
+          <a href={whatsappUrl(phone, wMsg)} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
+            style={{ display:'flex', alignItems:'center', gap:5, background:'#e6faf0', color:'#1a7a45', border:'none', borderRadius:8, padding:'7px 13px', fontSize:'0.85rem', fontWeight:800, textDecoration:'none' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            {T.whatsapp}
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -383,422 +455,309 @@ function RescheduleModal({ appt, onClose, onConfirm }) {
 export default function ReceptionistDashboard() {
   const [isLoggedIn, setIsLoggedIn]           = useState(false);
   const [receptName, setReceptName]           = useState('');
+  const [lang, setLang]                       = useState('ar');
   const [branch, setBranch]                   = useState('Fifth Settlement');
   const [selectedDate, setSelectedDate]       = useState(TODAY);
-  const [view, setView]                       = useState('day');
+  const [view, setView]                       = useState('list');          // list | grid | upcoming
   const [doctorFilter, setDoctorFilter]       = useState('all');
-  const [appointments, setAppointments]       = useState(INIT_APPOINTMENTS);
+  const [appointments, setAppointments]       = useState(() => AppointmentStore.getAll());
+  const [patients, setPatients]               = useState(() => AppointmentStore.getAllPatients());
   const [patientModal, setPatientModal]       = useState(null);
   const [rescheduleModal, setRescheduleModal] = useState(null);
   const [toast, setToast]                     = useState(null);
 
-  const showToast = (msg, type = 'success') => {
-    setToast({ message: msg, type });
-    setTimeout(() => setToast(null), 6000);
-  };
+  useEffect(() => {
+    const onFocus = () => { setAppointments(AppointmentStore.getAll()); setPatients(AppointmentStore.getAllPatients()); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
 
-  const getAppt = id => appointments.find(a => a.id === id);
+  const T      = TR[lang];
+  const isRTL  = lang === 'ar';
+  const font   = isRTL ? "'Cairo','Segoe UI',sans-serif" : 'inherit';
+
+  const showToast = (msg, type = 'success') => { setToast({ message:msg, type }); setTimeout(() => setToast(null), 6000); };
+  const getAppt   = id => appointments.find(a => a.id === id);
+  const refreshStore = () => { setAppointments(AppointmentStore.getAll()); };
 
   const handleAccept = appt => {
-    setAppointments(prev => prev.map(a => a.id === appt.id ? { ...a, status: 'Confirmed' } : a));
-    setPatientModal(null);
-    const p = INIT_PATIENTS.find(p => p.id === appt.patientId);
-    showToast(`Notification sent to ${p?.name} (${p?.email}): Your appointment on ${fmtDate(appt.date)} at ${appt.time} has been confirmed.`, 'success');
+    AppointmentStore.updateStatus(appt.id, 'Confirmed');
+    refreshStore(); setPatientModal(null);
+    const p = patients.find(p => p.id === appt.patientId);
+    showToast(T.toastConfirmed(p?.name || appt.patientName, p?.email || appt.patientEmail || '—', fmtDate(appt.date, T), appt.time), 'success');
   };
-
   const handleReject = appt => {
-    setAppointments(prev => prev.map(a => a.id === appt.id ? { ...a, status: 'Cancelled' } : a));
-    setPatientModal(null);
-    const p = INIT_PATIENTS.find(p => p.id === appt.patientId);
-    showToast(`Notification sent to ${p?.name} (${p?.email}): Your appointment on ${fmtDate(appt.date)} at ${appt.time} has been cancelled.`, 'danger');
+    AppointmentStore.updateStatus(appt.id, 'Cancelled');
+    refreshStore(); setPatientModal(null);
+    const p = patients.find(p => p.id === appt.patientId);
+    showToast(T.toastCancelled(p?.name || appt.patientName, p?.email || appt.patientEmail || '—', fmtDate(appt.date, T), appt.time), 'danger');
   };
-
   const handleReschedule = (appt, newDate, newTime) => {
-    setAppointments(prev => prev.map(a => a.id === appt.id ? { ...a, date: newDate, time: newTime, status: 'Confirmed' } : a));
-    setRescheduleModal(null);
-    setPatientModal(null);
-    const p = INIT_PATIENTS.find(p => p.id === appt.patientId);
-    showToast(`Notification sent to ${p?.name} (${p?.email}): Your appointment has been rescheduled to ${fmtDate(newDate)} at ${newTime}.`, 'warn');
+    AppointmentStore.updateStatus(appt.id, 'Confirmed', { date: newDate, time: newTime });
+    refreshStore(); setRescheduleModal(null); setPatientModal(null);
+    const p = patients.find(p => p.id === appt.patientId);
+    showToast(T.toastRescheduled(p?.name || appt.patientName, p?.email || appt.patientEmail || '—', fmtDate(newDate, T), newTime), 'warn');
   };
 
-  // Filtered day appointments
+  // Day appointments for the selected date + branch
   const dayAppts = useMemo(() =>
     appointments
-      .filter(a =>
-        a.branch === branch &&
-        a.date === selectedDate &&
-        (doctorFilter === 'all' || a.doctorId === parseInt(doctorFilter))
-      )
+      .filter(a => a.branch === branch && a.date === selectedDate && (doctorFilter === 'all' || a.doctorId === parseInt(doctorFilter)))
       .sort((a, b) => a.time.localeCompare(b.time)),
     [appointments, branch, selectedDate, doctorFilter]
   );
 
-  const activeDoctors = DOCTORS.filter(d =>
-    (doctorFilter === 'all' || d.id === parseInt(doctorFilter)) &&
-    dayAppts.some(a => a.doctorId === d.id)
-  );
+  // Upcoming: next 14 working days
+  const upcomingDays = useMemo(() => {
+    const futureDates = getNextWorkDays(TODAY, 14);
+    return futureDates.map(d => ({
+      date: d,
+      appts: appointments
+        .filter(a => a.branch === branch && a.date === d && (doctorFilter === 'all' || a.doctorId === parseInt(doctorFilter)))
+        .sort((a, b) => a.time.localeCompare(b.time)),
+    })).filter(g => g.appts.length > 0);
+  }, [appointments, branch, doctorFilter]);
 
-  const stats = {
-    total:     dayAppts.length,
-    pending:   dayAppts.filter(a => a.status === 'Pending').length,
-    confirmed: dayAppts.filter(a => a.status === 'Confirmed').length,
-    cancelled: dayAppts.filter(a => a.status === 'Cancelled').length,
-  };
+  const stats = { total: dayAppts.length, pending: dayAppts.filter(a => a.status === 'Pending').length, confirmed: dayAppts.filter(a => a.status === 'Confirmed').length };
 
-  // Week dates (7-day window starting from Sunday of the selected week)
+  // Grid view week dates
   const weekDates = useMemo(() => {
     const base = new Date(selectedDate + 'T00:00:00');
-    base.setDate(base.getDate() - base.getDay()); // rewind to Sunday
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      return d.toISOString().slice(0, 10);
-    });
+    base.setDate(base.getDate() - base.getDay());
+    return Array.from({ length: 7 }, (_, i) => { const d = new Date(base); d.setDate(base.getDate() + i); return d.toISOString().slice(0, 10); });
   }, [selectedDate]);
 
-  if (!isLoggedIn) {
-    return <LoginGate onLogin={name => { setIsLoggedIn(true); setReceptName(name); }} />;
-  }
+  if (!isLoggedIn) return <LoginGate lang={lang} onToggleLang={() => setLang(l => l === 'ar' ? 'en' : 'ar')} onLogin={n => { setIsLoggedIn(true); setReceptName(n); }} />;
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh' }}>
+    <div dir={isRTL ? 'rtl' : 'ltr'} style={{ background: '#f5f6fa', minHeight: '100vh', fontFamily: font }}>
 
       {/* ── TOP BAR ───────────────────────────────────────── */}
       <div style={{ background: C.primary, color: '#fff' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 16, height: 54, flexWrap: 'wrap' }}>
-          <div style={{ fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap' }}>
-            Receptionist Portal
-            <span style={{ fontWeight: 400, fontSize: '0.8rem', opacity: 0.7, marginLeft: 10 }}>Welcome, {receptName}</span>
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: 18, height: 68, flexWrap: 'wrap' }}>
+
+          {/* Cutis logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <div style={{ width: 36, height: 36, background: '#009cdb', borderRadius: 8, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', fontWeight: 900 }}>C</div>
+            <div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>Cutis</div>
+              <div style={{ fontSize: '0.58rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#b2d234', marginTop: 1 }}>The Skin Clinic</div>
+            </div>
+            <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.25)', marginInline: 6 }} />
+            <div style={{ fontWeight: 800, fontSize: '1rem', opacity: 0.9 }}>{T.portalTitle}</div>
           </div>
 
-          {/* Branch selector */}
-          <div style={{ display: 'flex', gap: 6, flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {/* Branch pills */}
+          <div style={{ display: 'flex', gap: 8, flex: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
             {BRANCHES.map(b => (
-              <button
-                key={b}
-                onClick={() => setBranch(b)}
-                style={{
-                  padding: '4px 13px', borderRadius: 20, fontSize: '0.78rem', fontWeight: 600,
-                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
-                  background: branch === b ? '#fff' : 'transparent',
-                  color: branch === b ? C.primary : 'rgba(255,255,255,0.75)',
-                  border: `1.5px solid ${branch === b ? '#fff' : 'rgba(255,255,255,0.3)'}`,
-                }}
-              >
-                {b}
+              <button key={b} onClick={() => setBranch(b)} style={{
+                padding: '7px 18px', borderRadius: 24, fontSize: '0.88rem', fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                background: branch === b ? '#fff' : 'transparent',
+                color: branch === b ? C.primary : 'rgba(255,255,255,0.8)',
+                border: `2px solid ${branch === b ? '#fff' : 'rgba(255,255,255,0.35)'}`,
+              }}>
+                {T.branchNames[b] || b}
               </button>
             ))}
           </div>
 
-          <button
-            onClick={() => setIsLoggedIn(false)}
-            style={{ background: 'transparent', border: '1.5px solid rgba(255,255,255,0.4)', color: 'rgba(255,255,255,0.8)', borderRadius: 8, padding: '4px 12px', fontSize: '0.77rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
-          >
-            Sign Out
+          <span style={{ fontSize: '0.88rem', opacity: 0.65 }}>{T.welcome} {receptName}</span>
+          <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')} style={{ background:'rgba(255,255,255,0.15)', border:'2px solid rgba(255,255,255,0.4)', color:'#fff', borderRadius:8, padding:'6px 14px', fontSize:'0.86rem', fontWeight:800, cursor:'pointer', fontFamily:'inherit', letterSpacing:'0.05em' }}>
+            {lang === 'ar' ? 'EN' : 'عربي'}
+          </button>
+          <button onClick={() => setIsLoggedIn(false)} style={{ background:'transparent', border:'2px solid rgba(255,255,255,0.4)', color:'rgba(255,255,255,0.85)', borderRadius:8, padding:'6px 14px', fontSize:'0.86rem', fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
+            {T.signOut}
           </button>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '22px 24px' }}>
 
-        {/* ── TOOLBAR ───────────────────────────────────────── */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginBottom: 18 }}>
-
-          {/* Date navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.white, border: `1px solid ${C.border}`, borderRadius: 10, padding: '5px 10px' }}>
-            <button onClick={() => setSelectedDate(addDays(selectedDate, -1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.primary, fontSize: '1.2rem', lineHeight: 1, padding: '0 3px' }}>‹</button>
-            <span style={{ fontWeight: 700, color: C.primary, fontSize: '0.91rem', minWidth: 172, textAlign: 'center' }}>
-              {selectedDate === TODAY ? '📅 Today — ' : ''}{fmtDate(selectedDate)}
+        {/* ── TOOLBAR ─────────────────────────────────── */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+          {/* Date nav */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: `1.5px solid ${C.border}`, borderRadius: 12, padding: '8px 14px' }}>
+            <button onClick={() => setSelectedDate(addDays(selectedDate, isRTL ? 1 : -1))} style={{ background:'none', border:'none', cursor:'pointer', color:C.primary, fontSize:'1.5rem', lineHeight:1, padding:'0 4px' }}>‹</button>
+            <span style={{ fontWeight:800, color:C.primary, fontSize:'1.05rem', minWidth:200, textAlign:'center' }}>
+              {selectedDate === TODAY ? `📅 ${T.todayLabel} — ` : ''}{fmtDate(selectedDate, T)}
             </span>
-            <button onClick={() => setSelectedDate(addDays(selectedDate, 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.primary, fontSize: '1.2rem', lineHeight: 1, padding: '0 3px' }}>›</button>
+            <button onClick={() => setSelectedDate(addDays(selectedDate, isRTL ? -1 : 1))} style={{ background:'none', border:'none', cursor:'pointer', color:C.primary, fontSize:'1.5rem', lineHeight:1, padding:'0 4px' }}>›</button>
           </div>
+          {selectedDate !== TODAY && <button onClick={() => setSelectedDate(TODAY)} style={{ background:C.light, border:`1.5px solid ${C.border}`, borderRadius:10, padding:'9px 18px', fontSize:'0.92rem', fontWeight:700, cursor:'pointer', color:C.primary, fontFamily:'inherit' }}>{T.todayBtn}</button>}
 
-          {selectedDate !== TODAY && (
-            <button
-              onClick={() => setSelectedDate(TODAY)}
-              style={{ background: C.light, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 13px', fontSize: '0.81rem', fontWeight: 600, cursor: 'pointer', color: C.primary, fontFamily: 'inherit' }}
-            >
-              ↩ Today
-            </button>
-          )}
-
-          {/* Doctor filter */}
-          <select
-            value={doctorFilter}
-            onChange={e => setDoctorFilter(e.target.value)}
-            style={{ padding: '7px 12px', border: `1px solid ${C.border}`, borderRadius: 9, fontSize: '0.83rem', fontFamily: 'inherit', color: C.primary, background: C.white, cursor: 'pointer' }}
-          >
-            <option value="all">All Doctors</option>
+          <select value={doctorFilter} onChange={e => setDoctorFilter(e.target.value)} style={{ padding:'9px 14px', border:`1.5px solid ${C.border}`, borderRadius:10, fontSize:'0.92rem', fontFamily:'inherit', color:C.primary, background:'#fff', cursor:'pointer', fontWeight:600 }}>
+            <option value="all">{T.allDoctors}</option>
             {DOCTORS.map(d => <option key={d.id} value={d.id}>{d.short}</option>)}
           </select>
 
           {/* View toggle */}
-          <div style={{ marginLeft: 'auto', display: 'flex', background: C.white, border: `1px solid ${C.border}`, borderRadius: 9, overflow: 'hidden' }}>
-            {[['day', 'Day Schedule'], ['week', 'Week View']].map(([v, label]) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                style={{ padding: '7px 16px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'inherit', border: 'none', background: view === v ? C.primary : 'transparent', color: view === v ? '#fff' : C.muted, transition: 'all 0.15s' }}
-              >
+          <div style={{ marginInlineStart:'auto', display:'flex', background:'#fff', border:`1.5px solid ${C.border}`, borderRadius:10, overflow:'hidden' }}>
+            {[['list', T.listView], ['upcoming', T.upcomingView], ['grid', T.gridView]].map(([v, label]) => (
+              <button key={v} onClick={() => setView(v)} style={{ padding:'9px 18px', fontWeight:700, fontSize:'0.9rem', cursor:'pointer', fontFamily:'inherit', border:'none', background:view === v ? C.primary : 'transparent', color:view === v ? '#fff' : C.muted, transition:'all 0.15s' }}>
                 {label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* ── STATS ─────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
-          {[
-            { label: 'Scheduled', value: stats.total,     color: C.primary },
-            { label: 'Pending',   value: stats.pending,   color: C.warn    },
-            { label: 'Confirmed', value: stats.confirmed, color: C.success  },
-            { label: 'Cancelled', value: stats.cancelled, color: C.danger   },
-          ].map(s => (
-            <div key={s.label} style={{ background: C.white, borderRadius: 10, padding: '13px 16px', borderTop: `3px solid ${s.color}`, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-              <div style={{ fontSize: '1.85rem', fontWeight: 700, color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: '0.77rem', color: C.muted, marginTop: 2 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
+        {/* ── STATS (list view only) ──────────────────── */}
+        {view === 'list' && (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:14, marginBottom:22 }}>
+            {[
+              { label: T.scheduled, value: stats.total,     color: C.primary },
+              { label: T.pending,   value: stats.pending,   color: C.warn    },
+              { label: T.confirmed, value: stats.confirmed, color: C.success  },
+            ].map(s => (
+              <div key={s.label} style={{ background:'#fff', borderRadius:14, padding:'20px 24px', borderTop:`4px solid ${s.color}`, boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize:'3rem', fontWeight:900, color:s.color, lineHeight:1 }}>{s.value}</div>
+                <div style={{ fontSize:'0.95rem', fontWeight:700, color:C.muted, marginTop:6, textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
 
-        {/* ── DAY SCHEDULE GRID ─────────────────────────────── */}
-        {view === 'day' && (() => {
-          // Doctors shown as columns (filtered)
-          const gridDoctors = DOCTORS.filter(d =>
-            doctorFilter === 'all' || d.id === parseInt(doctorFilter)
-          );
+        {/* ── LIST VIEW ──────────────────────────────── */}
+        {view === 'list' && (
+          <div>
+            {dayAppts.length === 0
+              ? <div style={{ textAlign:'center', padding:'60px 20px', color:C.muted, fontSize:'1.1rem', fontWeight:600 }}>{T.noAppts}</div>
+              : dayAppts.map(appt => (
+                  <ApptRow
+                    key={appt.id} appt={appt} T={T} lang={lang} patients={patients}
+                    onView={() => setPatientModal(appt)}
+                    onAccept={e => { e.stopPropagation(); handleAccept(appt); }}
+                    onReject={e => { e.stopPropagation(); handleReject(appt); }}
+                    onReschedule={e => { e.stopPropagation(); setRescheduleModal(appt); }}
+                  />
+                ))
+            }
+          </div>
+        )}
 
-          return (
-            <div style={{ background: C.white, borderRadius: 14, boxShadow: '0 1px 6px rgba(0,0,0,0.07)', overflow: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        {/* ── UPCOMING VIEW ─────────────────────────── */}
+        {view === 'upcoming' && (
+          <div>
+            <h2 style={{ fontWeight:800, color:C.primary, fontSize:'1.3rem', marginBottom:20 }}>{T.upcomingTitle} — {T.branchNames[branch] || branch}</h2>
+            {upcomingDays.length === 0
+              ? <div style={{ textAlign:'center', padding:'60px 20px', color:C.muted, fontSize:'1.1rem', fontWeight:600 }}>{T.noAppts}</div>
+              : upcomingDays.map(group => (
+                <div key={group.date} style={{ marginBottom:28 }}>
+                  <div style={{ fontSize:'1rem', fontWeight:800, color:C.primary, background:'#fff', border:`1.5px solid ${C.border}`, borderRadius:10, padding:'10px 18px', marginBottom:10, display:'inline-block' }}>
+                    📅 {fmtDate(group.date, T)}
+                    <span style={{ marginInlineStart:12, fontSize:'0.82rem', fontWeight:600, color:C.muted }}>{T.apptCount(group.appts.length)}</span>
+                  </div>
+                  {group.appts.map(appt => (
+                    <ApptRow
+                      key={appt.id} appt={appt} T={T} lang={lang} patients={patients}
+                      onView={() => setPatientModal(appt)}
+                      onAccept={e => { e.stopPropagation(); handleAccept(appt); }}
+                      onReject={e => { e.stopPropagation(); handleReject(appt); }}
+                      onReschedule={e => { e.stopPropagation(); setRescheduleModal(appt); }}
+                    />
+                  ))}
+                </div>
+              ))
+            }
+          </div>
+        )}
 
-                {/* ── Column header: Time + one column per doctor ── */}
-                <colgroup>
-                  <col style={{ width: 72 }} />
-                  {gridDoctors.map(d => <col key={d.id} />)}
-                </colgroup>
-                <thead>
-                  <tr style={{ background: C.primary }}>
-                    <th style={{ padding: '12px 10px', textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', borderRight: `1px solid rgba(255,255,255,0.1)` }}>
-                      Time
-                    </th>
-                    {gridDoctors.map(doc => {
-                      const cnt = dayAppts.filter(a => a.doctorId === doc.id).length;
-                      return (
-                        <th key={doc.id} style={{ padding: '10px 12px', textAlign: 'left', borderRight: `1px solid rgba(255,255,255,0.1)` }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: 30, height: 30, borderRadius: 8, background: doc.color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.72rem', flexShrink: 0 }}>{doc.initials}</div>
-                            <div>
-                              <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.84rem', whiteSpace: 'nowrap' }}>{doc.short}</div>
-                              <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)' }}>{cnt} appt{cnt !== 1 ? 's' : ''} today</div>
-                            </div>
-                          </div>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-
-                {/* ── Time slot rows ── */}
-                <tbody>
-                  {SCHEDULE_SLOTS.map((slot, idx) => {
-                    const hour       = slotHour(slot);
-                    const isHalfHour = slot.endsWith(':30');
-                    // Alternate shading by hour block
-                    const hourIndex  = hour - 8;
-                    const rowBg      = isHalfHour
-                      ? (hourIndex % 2 === 0 ? '#fafbff' : C.white)
-                      : (hourIndex % 2 === 0 ? '#f4f6fb' : '#fafbff');
-
-                    // Hour label shown only on the :00 row
-                    const timeLabel = isHalfHour
-                      ? <span style={{ color: C.border, fontSize: '0.72rem' }}>:30</span>
-                      : <span style={{ fontWeight: 700, fontSize: '0.8rem', color: C.primary }}>{hour > 12 ? `${hour - 12} PM` : hour === 12 ? '12 PM' : `${hour} AM`}</span>;
-
-                    return (
-                      <tr key={slot} style={{ background: rowBg }}>
-                        {/* Time column */}
-                        <td style={{
-                          padding: '0 8px', height: 52, textAlign: 'right',
-                          borderRight: `1px solid ${C.border}`,
-                          borderBottom: isHalfHour ? `1px solid ${C.border}` : `1px dashed ${C.border}`,
-                          verticalAlign: 'middle', whiteSpace: 'nowrap',
-                        }}>
-                          {timeLabel}
-                        </td>
-
-                        {/* Doctor cells */}
-                        {gridDoctors.map(doc => {
-                          const appt = appointments.find(a =>
-                            a.doctorId === doc.id &&
-                            a.date === selectedDate &&
-                            a.branch === branch &&
-                            a.time === slot
-                          );
-                          const s = appt ? (STATUS_BADGE[appt.status] || {}) : null;
-
-                          return (
-                            <td
-                              key={doc.id}
-                              style={{
-                                padding: appt ? '5px 7px' : '0',
-                                verticalAlign: 'top',
-                                borderRight: `1px solid ${C.border}`,
-                                borderBottom: isHalfHour ? `1px solid ${C.border}` : `1px dashed ${C.border}`,
-                                height: 52,
-                              }}
-                            >
-                              {appt && (
-                                <div
-                                  onClick={() => setPatientModal(appt)}
-                                  style={{
-                                    background: s.bg,
-                                    borderLeft: `3px solid ${s.color}`,
-                                    borderRadius: 6,
-                                    padding: '5px 8px',
-                                    cursor: 'pointer',
-                                    height: '100%',
-                                    boxSizing: 'border-box',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between',
-                                    gap: 3,
-                                  }}
-                                >
-                                  <div>
-                                    <div style={{ fontWeight: 700, fontSize: '0.8rem', color: C.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{appt.patientName}</div>
-                                    <div style={{ fontSize: '0.7rem', color: C.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{appt.department.replace('Advanced Laser Center','Laser').replace('Cosmetic Dermatology','Cosmetic').replace('Clinical Dermatology','Clinical')}</div>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} onClick={e => e.stopPropagation()}>
-                                    <span style={{ padding: '1px 6px', borderRadius: 10, fontSize: '0.65rem', fontWeight: 700, background: s.bg, color: s.color, border: `1px solid ${s.color}33`, whiteSpace: 'nowrap' }}>{appt.status}</span>
-                                    {appt.status === 'Pending' && (
-                                      <button onClick={() => handleAccept(appt)} title="Accept" style={{ background: '#e6f4ea', border: 'none', borderRadius: 4, padding: '1px 5px', fontSize: '0.68rem', fontWeight: 700, color: '#2d7a3a', cursor: 'pointer', fontFamily: 'inherit' }}>✓</button>
-                                    )}
-                                    {(appt.status === 'Pending' || appt.status === 'Confirmed') && (
-                                      <button onClick={() => setRescheduleModal(appt)} title="Reschedule" style={{ background: '#fff8e1', border: 'none', borderRadius: 4, padding: '1px 5px', fontSize: '0.68rem', fontWeight: 700, color: '#b07d00', cursor: 'pointer', fontFamily: 'inherit' }}>⟳</button>
-                                    )}
-                                    {(appt.status === 'Pending' || appt.status === 'Confirmed') && (
-                                      <button onClick={() => handleReject(appt)} title="Reject" style={{ background: '#fdecea', border: 'none', borderRadius: 4, padding: '1px 5px', fontSize: '0.68rem', fontWeight: 700, color: '#c0392b', cursor: 'pointer', fontFamily: 'inherit' }}>✕</button>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          );
-        })()}
-
-        {/* ── WEEK VIEW ─────────────────────────────────────── */}
-        {view === 'week' && (
-          <div style={{ background: C.white, borderRadius: 14, boxShadow: '0 1px 6px rgba(0,0,0,0.07)', overflow: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+        {/* ── GRID VIEW ──────────────────────────────── */}
+        {view === 'grid' && (
+          <div style={{ background:'#fff', borderRadius:14, boxShadow:'0 1px 6px rgba(0,0,0,0.07)', overflow:'auto' }}>
+            <table style={{ width:'100%', borderCollapse:'collapse', tableLayout:'fixed' }}>
+              <colgroup>
+                <col style={{ width:80 }} />
+                {DOCTORS.filter(d => doctorFilter === 'all' || d.id === parseInt(doctorFilter)).map(d => <col key={d.id} />)}
+              </colgroup>
               <thead>
-                <tr>
-                  <th style={{ padding: '13px 16px', textAlign: 'left', fontWeight: 600, fontSize: '0.82rem', color: C.muted, borderBottom: `1px solid ${C.border}`, minWidth: 140 }}>Doctor</th>
-                  {weekDates.map(d => {
-                    const dt = new Date(d + 'T00:00:00');
-                    const isToday    = d === TODAY;
-                    const isSelected = d === selectedDate;
+                <tr style={{ background:C.primary }}>
+                  <th style={{ padding:'14px 10px', textAlign:'center', color:'rgba(255,255,255,0.55)', fontSize:'0.78rem', fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', borderInlineEnd:`1px solid rgba(255,255,255,0.1)` }}>{T.timeLabel}</th>
+                  {DOCTORS.filter(d => doctorFilter === 'all' || d.id === parseInt(doctorFilter)).map(doc => {
+                    const cnt = dayAppts.filter(a => a.doctorId === doc.id).length;
                     return (
-                      <th
-                        key={d}
-                        onClick={() => { setSelectedDate(d); setView('day'); }}
-                        style={{
-                          padding: '11px 8px', textAlign: 'center', cursor: 'pointer',
-                          borderBottom: `1px solid ${C.border}`, minWidth: 78,
-                          background: isSelected ? C.light : 'transparent',
-                          fontWeight: 700,
-                        }}
-                      >
-                        <div style={{ fontSize: '0.67rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: C.muted }}>{DAY_NAMES[dt.getDay()]}</div>
-                        <div style={{ fontSize: '1.15rem', lineHeight: 1.4, color: isToday ? C.accent : C.primary }}>{dt.getDate()}</div>
-                        <div style={{ fontSize: '0.67rem', color: C.muted }}>{MONTH_NAMES[dt.getMonth()]}</div>
-                        {isToday && <div style={{ width: 5, height: 5, background: C.accent, borderRadius: '50%', margin: '3px auto 0' }} />}
+                      <th key={doc.id} style={{ padding:'14px 16px', textAlign:'start', borderInlineEnd:`1px solid rgba(255,255,255,0.1)` }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                          <div style={{ width:40, height:40, borderRadius:10, background:doc.color, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.9rem', flexShrink:0 }}>{doc.initials}</div>
+                          <div>
+                            <div style={{ fontWeight:800, color:'#fff', fontSize:'1rem', whiteSpace:'nowrap' }}>{doc.short}</div>
+                            <div style={{ fontSize:'0.8rem', color:'rgba(255,255,255,0.6)', marginTop:2 }}>{T.apptCount(cnt)}</div>
+                          </div>
+                        </div>
                       </th>
                     );
                   })}
                 </tr>
               </thead>
               <tbody>
-                {DOCTORS
-                  .filter(d => doctorFilter === 'all' || d.id === parseInt(doctorFilter))
-                  .map((doc, di) => (
-                    <tr key={doc.id} style={{ background: di % 2 === 0 ? C.white : '#fafbff' }}>
-                      <td style={{ padding: '11px 16px', borderBottom: `1px solid ${C.border}` }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ width: 26, height: 26, borderRadius: 7, background: doc.color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.7rem', flexShrink: 0 }}>{doc.initials}</div>
-                          <span style={{ fontWeight: 600, color: C.primary, fontSize: '0.83rem' }}>{doc.short}</span>
-                        </div>
+                {SCHEDULE_SLOTS.map(slot => {
+                  const hour       = parseInt(slot.split(':')[0], 10);
+                  const isHalfHour = slot.endsWith(':30');
+                  const rowBg      = (hour - 8) % 2 === 0 ? (isHalfHour ? '#fafbff' : '#f4f6fb') : (isHalfHour ? '#fff' : '#fafbff');
+                  const hourIn12   = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                  const ampm       = hour >= 12 ? (isRTL ? 'م' : 'PM') : (isRTL ? 'ص' : 'AM');
+                  const gridDoctors = DOCTORS.filter(d => doctorFilter === 'all' || d.id === parseInt(doctorFilter));
+
+                  return (
+                    <tr key={slot} style={{ background:rowBg }}>
+                      <td style={{ padding:'0 10px', height:80, textAlign:'end', borderInlineEnd:`1px solid ${C.border}`, borderBottom: isHalfHour ? `1px solid ${C.border}` : `1px dashed ${C.border}`, verticalAlign:'middle', whiteSpace:'nowrap' }}>
+                        {isHalfHour
+                          ? <span style={{ color:C.border, fontSize:'0.82rem', fontWeight:500 }}>:30</span>
+                          : <span style={{ fontWeight:800, fontSize:'0.95rem', color:C.primary }}>{hourIn12} {ampm}</span>}
                       </td>
-                      {weekDates.map(d => {
-                        const cells = appointments.filter(a => a.date === d && a.doctorId === doc.id && a.branch === branch);
-                        const confirmed = cells.filter(a => a.status === 'Confirmed').length;
-                        const pending   = cells.filter(a => a.status === 'Pending').length;
+                      {gridDoctors.map(doc => {
+                        const appt = appointments.find(a => a.doctorId === doc.id && a.date === selectedDate && a.branch === branch && a.time === slot);
+                        const s    = appt ? (STATUS_BADGE[appt.status] || {}) : null;
+                        const phone = appt ? (appt.patientPhone || patients.find(p => p.id === appt?.patientId)?.phone || '') : '';
+                        const wMsg  = appt ? (isRTL ? T.waMsgChange(appt.patientName) : T.waMsgChange(appt.patientName)) : '';
                         return (
-                          <td
-                            key={d}
-                            onClick={() => { if (cells.length) { setSelectedDate(d); setDoctorFilter(String(doc.id)); setView('day'); } }}
-                            style={{ padding: '10px 8px', borderBottom: `1px solid ${C.border}`, textAlign: 'center', cursor: cells.length ? 'pointer' : 'default', verticalAlign: 'middle' }}
-                          >
-                            {cells.length > 0 ? (
-                              <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 3 }}>
-                                {confirmed > 0 && <span style={{ padding: '2px 8px', borderRadius: 20, background: '#e6f4ea', color: '#2d7a3a', fontSize: '0.71rem', fontWeight: 700 }}>{confirmed} ✓</span>}
-                                {pending   > 0 && <span style={{ padding: '2px 8px', borderRadius: 20, background: '#fff8e1', color: '#b07d00', fontSize: '0.71rem', fontWeight: 700 }}>{pending} ⏳</span>}
+                          <td key={doc.id} style={{ padding:appt?'6px 8px':'0', verticalAlign:'top', borderInlineEnd:`1px solid ${C.border}`, borderBottom:isHalfHour?`1px solid ${C.border}`:`1px dashed ${C.border}`, height:80 }}>
+                            {appt && (
+                              <div onClick={() => setPatientModal(appt)} style={{ background:s.bg, borderInlineStart:`4px solid ${s.color}`, borderRadius:8, padding:'8px 10px', cursor:'pointer', height:'100%', boxSizing:'border-box', display:'flex', flexDirection:'column', justifyContent:'space-between', gap:3 }}>
+                                <div>
+                                  <div style={{ fontWeight:800, fontSize:'0.95rem', color:C.primary, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{appt.patientName}</div>
+                                  <div style={{ fontSize:'0.78rem', fontWeight:600, color:C.muted, direction:'ltr', textAlign:isRTL?'right':'left' }}>{phone}</div>
+                                </div>
+                                <div style={{ display:'flex', alignItems:'center', gap:5 }} onClick={e => e.stopPropagation()}>
+                                  <span style={{ padding:'2px 7px', borderRadius:10, fontSize:'0.74rem', fontWeight:800, background:s.bg, color:s.color, border:`1.5px solid ${s.color}44`, whiteSpace:'nowrap' }}>{T.statuses[appt.status] || appt.status}</span>
+                                  {appt.status === 'Pending' && <button onClick={() => handleAccept(appt)} style={{ background:'#e6f4ea', border:'none', borderRadius:5, padding:'2px 7px', fontSize:'0.78rem', fontWeight:800, color:'#2d7a3a', cursor:'pointer', fontFamily:'inherit' }}>✓</button>}
+                                  {(appt.status === 'Pending' || appt.status === 'Confirmed') && <button onClick={() => setRescheduleModal(appt)} style={{ background:'#fff8e1', border:'none', borderRadius:5, padding:'2px 7px', fontSize:'0.78rem', fontWeight:800, color:'#b07d00', cursor:'pointer', fontFamily:'inherit' }}>⟳</button>}
+                                  {phone && <a href={whatsappUrl(phone, wMsg)} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ background:'#e6faf0', color:'#1a7a45', borderRadius:5, padding:'2px 7px', fontSize:'0.78rem', fontWeight:800, textDecoration:'none' }}>📱</a>}
+                                </div>
                               </div>
-                            ) : (
-                              <span style={{ color: C.border }}>—</span>
                             )}
                           </td>
                         );
                       })}
                     </tr>
-                  ))}
+                  );
+                })}
               </tbody>
             </table>
-            <div style={{ padding: '10px 16px', fontSize: '0.78rem', color: C.muted, borderTop: `1px solid ${C.border}` }}>
-              Click any cell to jump to that day's schedule for the selected doctor.
-            </div>
           </div>
         )}
       </div>
 
-      {/* ── MODALS ───────────────────────────────────────────── */}
+      {/* ── MODALS ── */}
       {patientModal && (
-        <PatientModal
-          appt={getAppt(patientModal.id) || patientModal}
-          patients={INIT_PATIENTS}
+        <PatientModal appt={getAppt(patientModal.id) || patientModal} patients={patients} T={T} lang={lang}
           onClose={() => setPatientModal(null)}
           onAccept={() => handleAccept(getAppt(patientModal.id) || patientModal)}
           onReject={() => handleReject(getAppt(patientModal.id) || patientModal)}
-          onReschedule={() => {
-            setRescheduleModal(getAppt(patientModal.id) || patientModal);
-            setPatientModal(null);
-          }}
+          onReschedule={() => { setRescheduleModal(getAppt(patientModal.id) || patientModal); setPatientModal(null); }}
         />
       )}
-
       {rescheduleModal && (
-        <RescheduleModal
-          appt={rescheduleModal}
+        <RescheduleModal appt={rescheduleModal} patients={patients} T={T}
           onClose={() => setRescheduleModal(null)}
           onConfirm={(d, t) => handleReschedule(rescheduleModal, d, t)}
         />
       )}
-
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(60px); opacity: 0; }
-          to   { transform: translateX(0);    opacity: 1; }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+        @keyframes slideInRight { from { transform:translateX(60px); opacity:0; } to { transform:translateX(0); opacity:1; } }
       `}</style>
     </div>
   );

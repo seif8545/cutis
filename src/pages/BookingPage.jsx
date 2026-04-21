@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import * as PatientStore from '../utils/patientStore';
+import * as AppointmentStore from '../utils/appointmentStore';
 import '../styles/global.css';
 
 const BRANCHES = ["Sheikh Zayed", "Fifth Settlement", "Heliopolis", "Mohandeseen"];
@@ -121,8 +122,8 @@ export default function BookingPage() {
       medications: formData.medications,
     });
 
-    // Attach the appointment to the profile
-    PatientStore.upsertAppointment(formData.email, {
+    // Build the appointment object
+    const apptData = {
       bookingRef:      ref,
       date:            formData.date,
       time:            formData.time,
@@ -131,7 +132,18 @@ export default function BookingPage() {
       doctor:          doctorName,
       status:          'Pending',
       chiefComplaint:  formData.chiefComplaint,
-    });
+    };
+
+    // Attach the appointment to the patient's profile
+    PatientStore.upsertAppointment(formData.email, apptData);
+
+    // Register the booking in the shared appointment store so it shows up
+    // in the Receptionist and Doctors portals immediately
+    AppointmentStore.registerWebBooking({
+      name:  formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+    }, apptData);
 
     // Sign the patient into their profile session
     PatientStore.setSession(formData.email);
