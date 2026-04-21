@@ -17,9 +17,9 @@ const INSURERS = [
 ];
 
 const TEAM = [
-  { name: "Prof. Dr. Marwa Abdallah",      title: "Professor of Dermatology",             img: "/images/dr-marwa.png",    color: "#0d4f3c" },
+  { name: "Prof. Dr. Marwa Abdallah",      title: "Professor of Dermatology",            img: "/images/dr-marwa.png",    color: "#0d4f3c" },
   { name: "A. Prof. Dr. Mahmoud Abdallah", title: "Associate Professor of Dermatology",   img: "/images/dr-mahmoud.png",  color: "#0f172a" },
-  { name: "Dr. Nehad Youssef",             title: "Specialist Dermatologist",              img: "/images/dr-nehad.png",    color: "#475569" },
+  { name: "Dr. Nehad Youssef",             title: "Specialist Dermatologist",             img: "/images/dr-nehad.png",    color: "#475569" },
   { name: "Dr. Azza El-Azhary",            title: "Dermatology & Andrology Specialist",   img: "/images/dr-azza.png",     color: "#64748b" },
 ];
 
@@ -299,22 +299,14 @@ export default function LandingPage() {
 
             {/* Left: headline + treatments + CTAs */}
             <div style={{ flex: '1 1 400px' }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 22,
-                background: 'rgba(178,210,52,0.18)', border: '1px solid rgba(178,210,52,0.35)',
-                borderRadius: 20, padding: '5px 14px',
-              }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--brand-green)', display: 'inline-block' }} />
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--brand-green)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Dermatology &amp; Aesthetic Medicine</span>
-              </div>
 
               <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.4rem, 5vw, 3.8rem)', color: '#fff', lineHeight: 1.1, marginBottom: 20, letterSpacing: '-0.01em' }}>
-                Skin that glows.<br />
-                <em style={{ color: 'var(--brand-green)', fontStyle: 'normal' }}>Science that shows.</em>
+                Expert Dermatology.<br />
+                <em style={{ color: 'var(--brand-green)', fontStyle: 'normal' }}>Beautiful Results.</em>
               </h1>
 
               <p style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.78)', lineHeight: 1.8, marginBottom: 30, maxWidth: 440 }}>
-                Come for the glow, stay for the care. Our doctors treat skin medically and aesthetically — acne, aging, hair loss, pigmentation and more — with over 60 years of expertise behind every consultation.
+                Medical and cosmetic skin care by Egypt's leading doctors. With over 60 years of experience, we provide treatments you can trust.
               </p>
 
               {/* Treatment chips */}
