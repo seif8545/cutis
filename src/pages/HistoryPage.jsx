@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import '../styles/global.css';
 
-// ── Timeline data (full authoritative text) ───────────────────
+// ── Timeline data ─────────────────────────────────────────────
 const TIMELINE = [
   {
     year: '1938 – 1959',
@@ -55,157 +55,6 @@ const TIMELINE = [
   },
 ];
 
-// ── Branch location data ──────────────────────────────────────
-const BRANCHES = [
-  {
-    name: 'Korba — Heliopolis',
-    tagline: 'Where it all began',
-    area: 'Heliopolis, Cairo',
-    since: 'Est. 1964',
-    description: 'The birthplace of Cutis. Over six decades of clinical excellence in the heart of Heliopolis.',
-    color: '#7a5c00',
-    light: '#fffbe6',
-    accent: '#c9a84c',
-    pin: '🏛',
-    mapUrl: 'https://maps.app.goo.gl/b4n55hJeWLsdtq8i7',
-  },
-  {
-    name: 'Mohandessin',
-    tagline: 'The western landmark',
-    area: 'Giza, Cairo',
-    since: 'Est. 2012',
-    description: 'Cutis\'s first major expansion, now one of Cairo\'s most visited dermatology destinations.',
-    color: '#21326c',
-    light: '#eef2ff',
-    accent: '#009cdb',
-    pin: '🏢',
-    mapUrl: 'https://maps.app.goo.gl/5XY68gy9ygZ5PySNA',
-  },
-  {
-    name: 'Fifth Settlement',
-    tagline: 'East Cairo\'s gem',
-    area: 'New Cairo',
-    since: 'Est. 2019',
-    description: 'A state-of-the-art facility bringing Cutis\'s full spectrum of treatments to New Cairo.',
-    color: '#0891b2',
-    light: '#e0f7ff',
-    accent: '#0ea5c9',
-    pin: '🌿',
-    mapUrl: 'https://maps.app.goo.gl/sXhVLW3UJgTi1LtQ9',
-  },
-  {
-    name: 'Sheikh Zayed',
-    tagline: 'West Cairo\'s finest',
-    area: 'Capital Business Park',
-    since: 'Est. 2020',
-    description: 'Our newest flagship, pairing world-class laser platforms with Cutis\'s unmatched clinical expertise.',
-    color: '#2d7a3a',
-    light: '#e6f4ea',
-    accent: '#4ade80',
-    pin: '⚕',
-    mapUrl: 'https://maps.app.goo.gl/dLVMhXoaESLVyd2X7',
-  },
-];
-
-// ── Branch card ───────────────────────────────────────────────
-function BranchCard({ branch }) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        borderRadius: 24,
-        overflow: 'hidden',
-        boxShadow: hovered
-          ? `0 20px 48px rgba(0,0,0,0.15), 0 0 0 2px ${branch.accent}`
-          : '0 4px 20px rgba(0,0,0,0.08)',
-        transform: hovered ? 'translateY(-6px)' : 'none',
-        transition: 'all 0.3s cubic-bezier(0.25,0.8,0.25,1)',
-        cursor: 'default',
-        background: '#fff',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Coloured header */}
-      <div style={{
-        background: hovered
-          ? branch.color
-          : branch.light,
-        padding: '28px 28px 22px',
-        transition: 'background 0.3s ease',
-        borderBottom: `3px solid ${branch.accent}`,
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-          <span style={{
-            fontSize: '2.2rem',
-            filter: hovered ? 'brightness(1.2)' : 'none',
-            transition: 'filter 0.3s',
-          }}>{branch.pin}</span>
-          <span style={{
-            fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.06em',
-            padding: '4px 10px', borderRadius: 20,
-            background: hovered ? 'rgba(255,255,255,0.2)' : branch.accent + '22',
-            color: hovered ? '#fff' : branch.color,
-            border: `1px solid ${hovered ? 'rgba(255,255,255,0.3)' : branch.accent + '55'}`,
-            transition: 'all 0.3s',
-          }}>{branch.since}</span>
-        </div>
-        <h3 style={{
-          margin: 0, fontFamily: 'var(--font-serif)', fontSize: '1.5rem',
-          color: hovered ? '#fff' : branch.color,
-          lineHeight: 1.15, transition: 'color 0.3s',
-        }}>{branch.name}</h3>
-        <div style={{
-          fontSize: '0.78rem', fontWeight: 600, marginTop: 4,
-          color: hovered ? 'rgba(255,255,255,0.7)' : branch.accent,
-          transition: 'color 0.3s',
-          textTransform: 'uppercase', letterSpacing: '0.07em',
-        }}>{branch.tagline}</div>
-      </div>
-
-      {/* Body */}
-      <div style={{ padding: '20px 28px 24px', flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span>📍</span> {branch.area}
-        </div>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-mid)', lineHeight: 1.65, margin: 0, flex: 1 }}>
-          {branch.description}
-        </p>
-        <a
-          href={branch.mapUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            gap: 7, padding: '11px 20px', borderRadius: 100,
-            background: hovered ? branch.color : 'transparent',
-            color: hovered ? '#fff' : branch.color,
-            border: `2px solid ${branch.color}`,
-            fontWeight: 700, fontSize: '0.85rem', textDecoration: 'none',
-            transition: 'all 0.25s ease',
-            fontFamily: 'var(--font-sans)',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = branch.color;
-            e.currentTarget.style.color = '#fff';
-          }}
-          onMouseLeave={e => {
-            if (!hovered) {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = branch.color;
-            }
-          }}
-        >
-          Get Directions →
-        </a>
-      </div>
-    </div>
-  );
-}
-
 // ── Main page ─────────────────────────────────────────────────
 export default function HistoryPage() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -224,11 +73,83 @@ export default function HistoryPage() {
         </div>
       </section>
 
+      {/* ── Founder in memoriam ───────────────────────────── */}
+      <section style={{ background: '#0f172a', padding: '80px 0' }}>
+        <div className="container" style={{ maxWidth: 900 }}>
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', gap: 48, alignItems: 'center',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(201,168,76,0.25)',
+            borderRadius: 28, padding: '48px 52px',
+          }}>
+            {/* Photo */}
+            <div style={{ flexShrink: 0 }}>
+              <div style={{
+                width: 210, height: 210, borderRadius: '50%',
+                overflow: 'hidden',
+                border: '4px solid #c9a84c',
+                boxShadow: '0 0 0 8px rgba(201,168,76,0.12), 0 20px 60px rgba(0,0,0,0.4)',
+              }}>
+                <img
+                  src="/images/dr-abdel-rehim.png"
+                  alt="Prof. Dr. Abdel-Rahim Abdallah"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
+                />
+              </div>
+              {/* Years badge */}
+              <div style={{ textAlign: 'center', marginTop: 18 }}>
+                <div style={{
+                  display: 'inline-block',
+                  fontFamily: 'var(--font-serif)', fontSize: '1rem',
+                  color: '#c9a84c', letterSpacing: '0.12em',
+                  padding: '6px 18px', borderRadius: 20,
+                  border: '1px solid rgba(201,168,76,0.4)',
+                  background: 'rgba(201,168,76,0.08)',
+                }}>
+                  1938 – 2020
+                </div>
+              </div>
+            </div>
+
+            {/* Text */}
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div style={{
+                fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.18em',
+                textTransform: 'uppercase', color: '#c9a84c', marginBottom: 14,
+              }}>
+                In Loving Memory
+              </div>
+              <h2 style={{
+                fontFamily: 'var(--font-serif)', fontSize: '2rem', color: '#fff',
+                lineHeight: 1.15, marginBottom: 8,
+              }}>
+                Prof. Dr. Abdel-Rahim Abdallah
+              </h2>
+              <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', marginBottom: 24, letterSpacing: '0.04em' }}>
+                Founder of Cutis · Guru of Dermatology in Egypt &amp; the Middle East
+              </div>
+              <div style={{ width: 40, height: 2, background: '#c9a84c', marginBottom: 24, borderRadius: 2 }} />
+              <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: '0.97rem', lineHeight: 1.85, margin: 0 }}>
+                A visionary physician, a dedicated educator, and the founding spirit of Cutis. Prof. Abdel-Rahim Abdallah transformed the landscape of dermatology in Egypt and across the Middle East, leaving behind a legacy that lives on in every patient we serve, every doctor we train, and every branch we open.
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem', lineHeight: 1.7, marginTop: 20, fontStyle: 'italic' }}>
+                "His life's work continues to guide us."
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Timeline ──────────────────────────────────────── */}
-      <section className="section" style={{ paddingBottom: 40 }}>
+      <section className="section" style={{ paddingBottom: 60 }}>
         <div className="container" style={{ maxWidth: 820 }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <span className="eyebrow">A Journey Through Time</span>
+            <h2 className="heading-md" style={{ marginBottom: 0 }}>Milestones</h2>
+          </div>
+
           <div style={{ position: 'relative' }}>
-            {/* Vertical line */}
+            {/* Vertical gradient line */}
             <div style={{
               position: 'absolute', left: 28, top: 0, bottom: 0,
               width: 2, background: 'linear-gradient(to bottom, var(--brand-blue), var(--brand-green))',
@@ -238,22 +159,18 @@ export default function HistoryPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 36 }}>
               {TIMELINE.map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-                  {/* Timeline node */}
-                  <div style={{
-                    width: 58, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 6,
-                  }}>
+                  {/* Node */}
+                  <div style={{ width: 58, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 6 }}>
                     <div style={{
                       width: 16, height: 16, borderRadius: '50%',
                       background: 'var(--brand-blue)', border: '3px solid #fff',
-                      boxShadow: '0 0 0 3px var(--brand-blue)',
-                      zIndex: 1,
+                      boxShadow: '0 0 0 3px var(--brand-blue)', zIndex: 1,
                     }} />
                   </div>
 
                   {/* Card */}
                   <div style={{
-                    flex: 1,
-                    background: '#fff', padding: '28px 32px',
+                    flex: 1, background: '#fff', padding: '28px 32px',
                     borderRadius: 20, border: '1px solid var(--border-lt)',
                     boxShadow: 'var(--shadow-sm)',
                   }}>
@@ -265,10 +182,7 @@ export default function HistoryPage() {
                     }}>
                       {item.year}
                     </div>
-                    <h3 style={{
-                      fontSize: '1.25rem', fontFamily: 'var(--font-serif)',
-                      color: 'var(--text-dark)', marginBottom: 10,
-                    }}>
+                    <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', color: 'var(--text-dark)', marginBottom: 10 }}>
                       {item.heading}
                     </h3>
                     {item.text.split('\n\n').map((para, pi) => (
@@ -280,29 +194,6 @@ export default function HistoryPage() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Locations ─────────────────────────────────────── */}
-      <section style={{ background: 'var(--text-dark)', padding: '80px 0' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <span className="eyebrow" style={{ color: 'var(--brand-green)' }}>Find Us</span>
-            <h2 className="heading-md" style={{ color: '#fff', marginBottom: 16 }}>Our Branches</h2>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1rem', maxWidth: 500, margin: '0 auto', lineHeight: 1.7 }}>
-              Four locations across Cairo — each one carrying the same commitment to clinical excellence that started in 1964.
-            </p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 24,
-          }}>
-            {BRANCHES.map(branch => (
-              <BranchCard key={branch.name} branch={branch} />
-            ))}
           </div>
         </div>
       </section>
