@@ -1,4 +1,3 @@
-// src/components/Navigation.jsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/global.css';
@@ -39,8 +38,19 @@ export default function Navigation() {
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '70px', gap: 16 }}>
 
           {/* Logo */}
-          <Link to="/" onClick={close} style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-            <div style={{ width: '36px', height: '36px', background: 'var(--brand-blue)', borderRadius: '8px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', fontWeight: 'bold' }}>C</div>
+          <Link to="/" onClick={close} style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0, textDecoration: 'none' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#fff' }}>
+              <img
+                src="/images/logo.jpg"
+                alt="Cutis logo"
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                onError={e => {
+                  e.target.style.display = 'none';
+                  e.target.parentNode.style.background = 'var(--brand-blue)';
+                  e.target.parentNode.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;color:#fff;">C</div>';
+                }}
+              />
+            </div>
             <div>
               <div style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--brand-blue)', lineHeight: '1' }}>Cutis</div>
               <div style={{ fontSize: '0.6rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--brand-green)', marginTop: '2px' }}>The Skin Clinic</div>
@@ -48,7 +58,7 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop links — always the same set regardless of route */}
-          <div className="nav-desktop" style={{ gap: 24 }}>
+          <div className="nav-desktop" style={{ gap: 24, display: 'flex', alignItems: 'center' }}>
             {NAV_LINKS.map(({ to, label }) => (
               <Link key={to} to={to} style={activeLinkStyle(to)}>{label}</Link>
             ))}
@@ -86,6 +96,7 @@ export default function Navigation() {
                 fontSize: '0.95rem', fontWeight: 600,
                 color: location.pathname === to ? 'var(--brand-blue)' : 'var(--text-dark)',
                 borderBottom: '1px solid var(--border-lt)',
+                textDecoration: 'none'
               }}>
                 {label}
               </Link>

@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/global.css';
 
 const CATEGORIES = ["Injectables", "Laser Center", "Clinical & Surgical"];
+
+// This maps the UI tabs on this page to the exact Department names your BookingPage expects
+const DEPT_MAP = {
+  "Injectables": "Cosmetic Dermatology",
+  "Laser Center": "Advanced Laser Center",
+  "Clinical & Surgical": "Clinical Dermatology"
+};
 
 const SERVICES_DATA = {
   "Injectables": [
@@ -14,7 +22,7 @@ const SERVICES_DATA = {
         { q: "What is the best age to start?", a: "Recent studies suggest starting in the late 20s can help develop fewer wrinkles than aging naturally." }
       ],
       beforeAfterLabel: "Forehead lines & crow's feet",
-      image: null // No image provided in the folder for Botox
+      image: null
     },
     {
       title: "Dermal Fillers",
@@ -63,7 +71,7 @@ const SERVICES_DATA = {
         { q: "How many sessions are needed?", a: "Typically 6 to 8 sessions spaced 4–6 weeks apart." }
       ],
       beforeAfterLabel: "Hair reduction over multiple sessions",
-      image: null // No image provided
+      image: null
     },
     {
       title: "Tattoo Removal",
@@ -172,57 +180,50 @@ const SERVICES_DATA = {
   ]
 };
 
-// ── Updated Single-Image Before / After panel ─────────────────
 function BeforeAfterPanel({ label, image }) {
-  if (!image) return null; // Failsafe
+  if (!image) return null;
 
   return (
     <div style={{ marginTop: 28 }}>
-      {/* Section label */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
         <div style={{ height: 1, flex: 1, background: 'var(--border-lt)' }} />
-        <span style={{
-          fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase',
-          letterSpacing: '0.12em', color: 'var(--text-muted)'
-        }}>
+        <span style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>
           Before &amp; After — {label}
         </span>
         <div style={{ height: 1, flex: 1, background: 'var(--border-lt)' }} />
       </div>
 
-      {/* Single Image Frame */}
       <div style={{ 
-        borderRadius: 14, 
-        overflow: 'hidden', 
-        border: '1px solid var(--border-lt)', 
-        background: '#f8fafc',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
+        borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border-lt)', 
+        background: '#f8fafc', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
-        {/* Assumes images will be placed in the public/images/ directory */}
-        <img 
-          src={`/images/${image}`} 
-          alt={`Before and After ${label}`} 
-          style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }} 
-        />
+        <img src={`/images/${image}`} alt={`Before and After ${label}`} style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }} />
       </div>
 
-      {/* Caption */}
-      <p style={{
-        fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center',
-        marginTop: 10, fontStyle: 'italic',
-      }}>
+      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: 10, fontStyle: 'italic' }}>
         Representative results may vary.
       </p>
     </div>
   );
 }
 
-// ── Service card ──────────────────────────────────────────────
-function ServiceCard({ service }) {
+// ── Updated Service Card with Direct Booking ──────────────────
+function ServiceCard({ service, categoryName }) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleDirectBook = () => {
+    // Maps the UI tab name to the exact Booking Department string
+    const mappedDepartment = DEPT_MAP[categoryName];
+    
+    // Creates the same payload your LandingPage offers use
+    localStorage.setItem('cutis_pending_offer', JSON.stringify({
+      department: mappedDepartment,
+      offerTitle: service.title,
+    }));
+    
+    navigate('/book');
+  };
 
   return (
     <div className="bento-item" style={{ gridColumn: 'span 6', display: 'flex', flexDirection: 'column' }}>
@@ -244,9 +245,18 @@ function ServiceCard({ service }) {
         </div>
       )}
 
-      {/* Before / After toggle - ONLY shows if an image exists */}
-      {service.image && (
-        <div style={{ marginTop: 'auto', paddingTop: 20 }}>
+      {/* Action Row: Book Now & Before/After Toggle */}
+      <div style={{ marginTop: 'auto', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        
+        <button 
+          onClick={handleDirectBook} 
+          className="btn btn-primary" 
+          style={{ padding: '10px 24px', fontSize: '0.85rem' }}
+        >
+          Book {service.title} →
+        </button>
+
+        {service.image && (
           <button
             onClick={() => setOpen(v => !v)}
             style={{
@@ -265,14 +275,17 @@ function ServiceCard({ service }) {
             }}>▼</span>
             {open ? 'Hide' : 'View'} Before &amp; After
           </button>
+        )}
+      </div>
 
-          <div style={{
-            overflow: 'hidden',
-            maxHeight: open ? '800px' : '0', // Increased max-height to accommodate tall images
-            transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1)',
-          }}>
-            <BeforeAfterPanel label={service.beforeAfterLabel} image={service.image} />
-          </div>
+      {/* Before/After Dropdown Panel */}
+      {service.image && (
+        <div style={{
+          overflow: 'hidden',
+          maxHeight: open ? '800px' : '0',
+          transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1)',
+        }}>
+          <BeforeAfterPanel label={service.beforeAfterLabel} image={service.image} />
         </div>
       )}
     </div>
@@ -322,7 +335,11 @@ export default function ServicesPage() {
         {/* Content Grid */}
         <div className="bento-grid" style={{ animation: 'fadeIn 0.5s ease' }}>
           {SERVICES_DATA[activeTab].map((service, index) => (
-            <ServiceCard key={`${activeTab}-${index}`} service={service} />
+            <ServiceCard 
+              key={`${activeTab}-${index}`} 
+              service={service} 
+              categoryName={activeTab} // Passed down to handle routing map
+            />
           ))}
         </div>
       </div>
